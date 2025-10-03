@@ -27,8 +27,26 @@ app.use("/api/documents", documentsRoutes);
 app.use("/api/tasks", tasksRoutes);
 app.use("/api/status", statusRoutes);
 
-// Test route
-app.get("/", (req, res) => res.send("Audisure backend running with MySQL!"));
+// Root landing page
+app.get("/", (req, res) => {
+  res.send(`
+    <div style="font-family: Arial, sans-serif; padding: 2rem; text-align: center;">
+      <h1>🚀 Audisure API</h1>
+      <p>Status: <strong style="color: green;">Online</strong></p>
+      <p>Database: <strong>MySQL Connected ✅</strong></p>
+      <p>Version: 1.0.0</p>
+      <h3>Available Routes:</h3>
+      <ul style="list-style: none; padding: 0;">
+        <li><a href="/api/auth">/api/auth</a></li>
+        <li><a href="/api/admin">/api/admin</a></li>
+        <li><a href="/api/upload">/api/upload</a></li>
+        <li><a href="/api/documents">/api/documents</a></li>
+        <li><a href="/api/tasks">/api/tasks</a></li>
+        <li><a href="/api/status">/api/status</a></li>
+      </ul>
+    </div>
+  `);
+});
 
 // Catch-all for unknown routes
 app.use((req, res) => {
