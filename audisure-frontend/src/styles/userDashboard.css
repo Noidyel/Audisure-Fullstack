@@ -1,0 +1,231 @@
+/* ========================
+   User Dashboard CSS
+======================== */
+
+/* Sidebar */
+.sidebar {
+  width: 60px;               /* collapsed thin sidebar */
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background: #1F2937;       /* red */
+  color: #fff;
+  padding: 0 12px;           /* horizontal padding only */
+  overflow-y: auto;
+  transition: width 0.3s;    /* expand on hover */
+  box-sizing: border-box;
+}
+
+.sidebar:hover {
+  width: 220px;              /* expanded width on hover */
+}
+
+/* Sidebar title (hidden when collapsed) */
+.sidebar-title {
+  font-size: 20px;
+  margin: 20px 0;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+
+.sidebar:hover .sidebar-title {
+  opacity: 1; /* fully visible when expanded */
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  margin: 5px 0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+  white-space: nowrap;
+}
+
+.menu-item span {
+  margin-left: 10px;
+  overflow: hidden;
+  opacity: 0;            /* hide text when collapsed */
+  transition: opacity 0.3s;
+}
+
+.sidebar:hover .menu-item span {
+  opacity: 1;            /* show text on hover */
+}
+
+.menu-item:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.menu-item.active {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.logged-in {
+  margin-top: 30px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  opacity: 0;            /* hidden when collapsed */
+  transition: opacity 0.3s;
+}
+
+.sidebar:hover .logged-in {
+  opacity: 1;            /* visible when expanded */
+}
+
+/* Dashboard content */
+.dashboard-content {
+  margin-left: 60px;           /* collapsed sidebar width */
+  padding: 68px 24px 24px 24px; /* top padding = topbar height */
+  min-height: 100vh;
+  transition: margin-left 0.3s;
+  box-sizing: border-box;
+}
+
+.sidebar:hover ~ .dashboard-content {
+  margin-left: 220px;          /* match expanded sidebar width */
+}
+
+/* Topbar */
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 60px;                  /* match collapsed sidebar */
+  right: 0;
+  height: 68px;
+  padding: 0 24px;
+  background: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  transition: left 0.3s;        /* shifts when sidebar expands */
+}
+
+.sidebar:hover ~ .topbar {
+  left: 220px;                  /* align with expanded sidebar */
+}
+
+.topbar h2 {
+  margin: 0;                    /* remove heading margin */
+  padding: 0;
+  font-size: 1.2rem;
+}
+
+.topbar .actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Dropdown */
+.user-dropdown {
+  position: relative;
+}
+
+.user-dropdown-content {
+  position: absolute;
+  top: 35px;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.user-dropdown-content button {
+  width: 100%;
+  text-align: left;
+  padding: 10px 15px;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.user-dropdown-content button:hover {
+  background: #f8f9fa;
+}
+
+/* Feature / Activity cards */
+.card-grid {
+  display: flex;
+  gap: 20px;              /* spacing between cards */
+  flex-wrap: wrap;        /* allow wrapping instead of overlap */
+  margin-top: 20px;
+}
+
+/* Each card */
+.card {
+  flex: 1 1 250px;        /* responsive width, min ~250px */
+  min-height: 120px;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+/* Card color variations */
+.card.card-primary { background-color: #F87171; }
+.card.card-secondary { background-color: #FBBF24; }
+.card.card-neutral { background-color: #38BDF8; }
+
+/* Modal */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 200;
+}
+
+.modal {
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 90%;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.confirm-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.confirm-btn:hover {
+  background: #dc2626;
+}
+
+.cancel-btn {
+  background: #f3f3f3;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
