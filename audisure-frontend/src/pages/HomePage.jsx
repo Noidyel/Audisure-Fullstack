@@ -1,102 +1,217 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import { FaUpload, FaSearch, FaCheckCircle, FaLock, FaUserShield, FaMobileAlt } from "react-icons/fa";
-import '../styles/HomePage.css';
+import React, { useState, useRef, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import axios from "axios";
+import {
+  FaUpload,
+  FaSearch,
+  FaCheckCircle,
+  FaLock,
+  FaUserShield,
+  FaMobileAlt,
+  FaEye,
+  FaEyeSlash,
+} from "react-icons/fa";
+import "../styles/HomePage.css";
+import "../styles/LoginModal.css";
+import HCDRDLogo from '../assets/HCDRD_logo.png';
+import QRCodeImage from '../assets/QR_Code.png';
 
 export default function HomePage() {
+  const [showLogin, setShowLogin] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const featuresRef = useRef(null);
+  const [featuresVisible, setFeaturesVisible] = useState(false);
+
   const navigate = useNavigate();
 
-  return (
-    <div className="min-h-screen bg-gray-50 px-6 py-12">
-      {/* Hero Section */}
-      <header className="hero-header relative">
-        <div className="hero-bg"></div>
-        <div className="hero-shape shape1"></div>
-        <div className="hero-shape shape2"></div>
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
-        {/* Hero content container */}
-        <div className="hero-content-container relative z-10 max-w-4xl mx-auto px-4">
-          {/* Top-right portal button */}
-          <div className="flex justify-end mb-6">
-            <button
-              onClick={() => navigate("/login")}
-              className="btn-portal"
-            >
-              Audisure Portal
-            </button>
+    try {
+      const res = await axios.post(
+        `${process.env.REACT_APP_RENDER_API_URL}/api/auth/login`,
+        { email, password }
+      );
+
+      if (res.data.success) {
+        const user = res.data.user;
+        if (!user?.id) {
+          setError("Login failed: User ID missing in response.");
+          setLoading(false);
+          return;
+        }
+
+        localStorage.setItem("userId", user.id);
+        localStorage.setItem("userEmail", user.email);
+        localStorage.setItem("firstName", user.firstName);
+        localStorage.setItem("userRole", user.role.toLowerCase());
+        localStorage.setItem("token", res.data.token);
+
+        if (user.role.toLowerCase() === "admin") navigate("/admin-dashboard");
+        else navigate("/user-dashboard");
+
+        setShowLogin(false);
+      } else {
+        setError(res.data.message || "Invalid credentials");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setError("Server error or invalid credentials");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Scroll-triggered Features Section
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setFeaturesVisible(true);
+            observer.unobserve(entry.target); // trigger only once
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+
+    if (featuresRef.current) {
+      observer.observe(featuresRef.current);
+    }
+
+    return () => {
+      if (featuresRef.current) observer.unobserve(featuresRef.current);
+    };
+  }, []);
+
+  return (
+    <div className="home-container">
+      {/* Hero Section */}
+      <header className="hero-header">
+        {/* Portal Button */}
+        <button
+          className="btn-portal hero-btn-top-right"
+          onClick={() => setShowLogin(true)}
+        >
+          Audisure Portal
+        </button>
+
+        {/* Centered Logo + Title + Intro */}
+        <div className="hero-center-container">
+          <div className="hero-logo-title">
+            <img src={HCDRDLogo} alt="Audisure Logo" className="logo-img" />
+            <h1 className="hero-title">Audisure</h1>
           </div>
 
-          <div className="hero-content text-center">
-            <h1 className="text-5xl font-bold text-red-600 mb-4">Audisure</h1>
-            <p className="text-gray-700 text-lg mb-6">
-              A Document Management Verification System for the Housing Community Development 
-              and Resettlement Department. Upload, verify, and track documents securely and efficiently.
+          <div className="hero-intro">
+            <p className="hero-subtitle">
+              Audisure is a Document Management Verification System (DMVS) designed to help the Housing Community Development and Resettlement Department (HCDRD) securely manage, track, and verify important documents.
+            </p>
+            <p className="hero-description">
+              Developed to streamline document submission and approval processes, Audisure ensures that staff, applicants, and administrators can efficiently handle document workflows.
+              It minimizes errors, prevents document tampering, and provides transparency for applicants checking their document status.
+              By integrating secure storage and real-time tracking, Audisure promotes accountability and enhances overall operational efficiency in community development projects.
             </p>
           </div>
         </div>
       </header>
 
-      {/* Features Section by User */}
-      <section className="features-section max-w-6xl mx-auto mb-16 px-4">
-        <h2 className="text-3xl font-bold text-gray-800 text-center mb-8">FEATURES</h2>
+      {/* QR Code Section */}
+      <section className="qr-section section-spacing" style={{ marginTop: '4rem' }}>
+  <h2 className="section-title" style={{ margin: 0 }}>Try Our App</h2>
+  <div className="qr-container">
+    <img src={QRCodeImage} alt="Audisure QR Code" className="qr-img" />
+    <p>Scan to download the Audisure mobile app</p>
+  </div>
+</section>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          {/* Admin */}
+      {/* Features Section (Scroll-triggered) */}
+      <section
+  ref={featuresRef}
+  className={`features-section section-spacing ${featuresVisible ? "visible" : "hidden"}`}
+  style={{ marginTop: '4rem' }}
+>
+        <h2 className="section-title">Features</h2>
+        <div className="features-grid">
           <div className="user-card admin-card">
-            <h3 className="user-type">Admin</h3>
+            <h3>Admin</h3>
             <div className="feature-item">
-              <FaUserShield className="feature-icon" />
-              <p>Document Approval</p>
+              <FaUserShield className="feature-icon" /> Document Approval
             </div>
             <div className="feature-item">
-              <FaLock className="feature-icon" />
-              <p>Secure Storage</p>
+              <FaLock className="feature-icon" /> Secure Storage
             </div>
           </div>
 
-          {/* Staff */}
           <div className="user-card staff-card">
-            <h3 className="user-type">Staff</h3>
+            <h3>Staff</h3>
             <div className="feature-item">
-              <FaUpload className="feature-icon" />
-              <p>Document Upload</p>
+              <FaUpload className="feature-icon" /> Document Upload
             </div>
             <div className="feature-item">
-              <FaCheckCircle className="feature-icon" />
-              <p>Track Submission</p>
+              <FaCheckCircle className="feature-icon" /> Track Submission
             </div>
           </div>
 
-          {/* Applicant */}
           <div className="user-card applicant-card">
-            <h3 className="user-type">Applicant</h3>
+            <h3>Applicant</h3>
             <div className="feature-item">
-              <FaMobileAlt className="feature-icon" />
-              <p>Check Status</p>
+              <FaMobileAlt className="feature-icon" /> Check Status
             </div>
             <div className="feature-item">
-              <FaSearch className="feature-icon" />
-              <p>Document History</p>
+              <FaSearch className="feature-icon" /> Document History
             </div>
           </div>
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="stats-section text-center mb-16">
-        <div className="stats-container">
-          <div><p className="stat-number">100+</p><p>Documents Managed</p></div>
-          <div><p className="stat-number">50+</p><p>Admins & Staff</p></div>
-          <div><p className="stat-number">100%</p><p>Tamper-Proof</p></div>
-        </div>
-      </section>
+      {/* Login Modal */}
+      {showLogin && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <button onClick={() => setShowLogin(false)} className="modal-close">✖</button>
+            <h2 className="modal-title">Login to Audisure</h2>
 
-      {/* QR Code Placeholder */}
-      <section className="qr-section max-w-md mx-auto">
-        <h2>Download Our Mobile App</h2>
-        <p>Scan the QR code to check your document status instantly.</p>
-        <div className="qr-placeholder">QR Code Here</div>
-      </section>
+            <form className="modal-form" onSubmit={handleLogin}>
+              <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              <div className="password-wrapper">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <span className="password-toggle" onClick={() => setShowPassword(!showPassword)}>
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </span>
+              </div>
+              <button type="submit" disabled={loading}>
+                {loading ? "Logging in..." : "Login"}
+              </button>
+            </form>
+
+            {error && <p className="error-text">{error}</p>}
+            <p className="register-text">
+              Don’t have an account yet? <Link to="/register">Register here</Link>
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,10 +1,7 @@
-import { useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Users, FileText, ClipboardList } from "lucide-react";
-import '../styles/sidebar.css';
+import "../styles/sidebar.css";
 
-export default function Sidebar({ active }) {
-  const navigate = useNavigate();
-
+export default function AdminSidebar({ active, onSelectFeature }) {
   return (
     <div className="sidebar">
       <div className="sidebar-title">Admin Panel</div>
@@ -12,7 +9,7 @@ export default function Sidebar({ active }) {
         <ul>
           <li
             className={`menu-item ${active === "dashboard" ? "active" : ""}`}
-            onClick={() => navigate('/admin-dashboard')}
+            onClick={() => onSelectFeature("dashboard")}
           >
             <LayoutDashboard size={20} />
             <span>Dashboard</span>
@@ -20,29 +17,31 @@ export default function Sidebar({ active }) {
           <hr className="border-gray-700 my-2" />
           <li
             className={`menu-item ${active === "verify" ? "active" : ""}`}
-            onClick={() => navigate('/admin-dashboard/verify')}
+            onClick={() => onSelectFeature("verify")}
           >
             <Users size={20} />
             <span>Verify</span>
           </li>
           <li
             className={`menu-item ${active === "assign" ? "active" : ""}`}
-            onClick={() => navigate('/admin-dashboard/assign')}
+            onClick={() => onSelectFeature("assign")}
           >
             <ClipboardList size={20} />
             <span>Assign</span>
           </li>
           <li
             className={`menu-item ${active === "documents" ? "active" : ""}`}
-            onClick={() => navigate('/admin-dashboard/documents')}
+            onClick={() => onSelectFeature("documents")}
           >
             <FileText size={20} />
             <span>Documents</span>
           </li>
         </ul>
       </nav>
+
       <div className="logged-in">
-        Logged in as:<br /><strong>Admin</strong>
+        Logged in as:<br />
+        <strong>Admin</strong>
       </div>
     </div>
   );

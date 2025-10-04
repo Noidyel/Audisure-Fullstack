@@ -1,86 +1,104 @@
+import React, { useState } from "react";
 import Sidebar from "../components/AdminSidebar";
 import Topbar from "../components/AdminTopbar";
-import '../styles/dashboard.css';
-import { useNavigate } from "react-router-dom";
+import Verify from "./Verify";
+import Assign from "./Assign";
+import Documents from "./Documents";
+import "../styles/dashboard.css";
 
 export default function AdminDashboard() {
-  const navigate = useNavigate();
-  
-  const userFirstName = localStorage.getItem("firstName") || "Nigel";
+  const adminFirstName = localStorage.getItem("firstName") || "Admin";
+  const [activeFeature, setActiveFeature] = useState("dashboard");
 
   const handleLogout = () => {
     localStorage.clear();
-    navigate("/login");
+    window.location.href = "/home";
+  };
+
+  const activities = [
+    { id: 1, text: "Applicant uploaded a document", time: "2 min ago" },
+    { id: 2, text: "Admin assigned a new task", time: "10 min ago" },
+    { id: 3, text: "Applicant checked document status", time: "1 hour ago" },
+    { id: 4, text: "Admin approved a document", time: "3 hours ago" },
+  ];
+
+  const renderContent = () => {
+    switch (activeFeature) {
+      case "verify":
+        return <Verify />;
+      case "assign":
+        return <Assign />;
+      case "documents":
+        return <Documents />;
+      default:
+        return (
+          <>
+            {/* Expanded Intro Cards */}
+            <div className="card-grid">
+              <div
+                className="card card-primary"
+                onClick={() => setActiveFeature("verify")}
+              >
+                <strong>👥 Verify</strong>
+                <p>
+                  Review, approve, or reject new user account requests. This
+                  ensures that only authorized applicants and staff gain access
+                  to the system, maintaining integrity and security.
+                </p>
+              </div>
+
+              <div
+                className="card card-secondary"
+                onClick={() => setActiveFeature("assign")}
+              >
+                <strong>📝 Assign</strong>
+                <p>
+                  Create and distribute tasks among staff members to manage
+                  document verification efficiently. Helps streamline workflows
+                  and ensure accountability.
+                </p>
+              </div>
+
+              <div
+                className="card card-neutral"
+                onClick={() => setActiveFeature("documents")}
+              >
+                <strong>📂 Documents</strong>
+                <p>
+                  Oversee all uploaded documents to check for completeness,
+                  accuracy, and compliance. Organize and take action on
+                  submissions easily.
+                </p>
+              </div>
+            </div>
+
+            {/* Recent Activities */}
+            <div className="recent-activities">
+              <h2>Recent Activities</h2>
+              <ul className="activity-list">
+                {activities.map((activity) => (
+                  <li key={activity.id}>
+                    <span className="activity-text">{activity.text}</span>
+                    <span className="activity-time">{activity.time}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </>
+        );
+    }
   };
 
   return (
-    <div>
-      <Sidebar active="dashboard" />
-      <Topbar adminName={userFirstName} onLogout={handleLogout} />
+    <div className="admin-dashboard-container">
+      {/* Sidebar stays static */}
+      <Sidebar active={activeFeature} onSelectFeature={setActiveFeature} />
 
-      <div className="dashboard-content">
-        <div className="dashboard-grid">
-          {/* Column 1 */}
-          <div className="dashboard-column">
-            <div className="feature-card feature-primary">
-              <div className="top-bar" style={{ backgroundColor: '#F87171' }}></div>
-              <div className="content">
-                <h3>👥 Verify</h3>
-                <p>Approve or reject new user account requests to ensure only legitimate individuals can access the system.</p>
-              </div>
-            </div>
-            <div className="activity-card">
-              <div className="top-bar" style={{ backgroundColor: '#F87171' }}></div>
-              <div className="content">
-                <h4>Most Recent Registered Account</h4>
-                <p><strong>John Smith</strong> (Pending)</p>
-                <button onClick={() => navigate('/admin-dashboard/verify')}>Expand...</button>
-                <small>2 hours ago</small>
-              </div>
-            </div>
-          </div>
+      {/* Topbar */}
+      <Topbar adminName={adminFirstName} onLogout={handleLogout} />
 
-          {/* Column 2 */}
-          <div className="dashboard-column">
-            <div className="feature-card feature-secondary">
-              <div className="top-bar" style={{ backgroundColor: '#FBBF24' }}></div>
-              <div className="content">
-                <h3>📝 Assign</h3>
-                <p>Distribute verification or processing tasks to staff members to streamline workflows and ensure accountability.</p>
-              </div>
-            </div>
-            <div className="activity-card">
-              <div className="top-bar" style={{ backgroundColor: '#FBBF24' }}></div>
-              <div className="content">
-                <h4>Most Recent Task Update</h4>
-                <p><strong>Task #24</strong> - In Progress</p>
-                <button onClick={() => navigate('/admin-dashboard/assign')}>Expand...</button>
-                <small>1 day ago</small>
-              </div>
-            </div>
-          </div>
-
-          {/* Column 3 */}
-          <div className="dashboard-column">
-            <div className="feature-card feature-neutral">
-              <div className="top-bar" style={{ backgroundColor: '#38BDF8' }}></div>
-              <div className="content">
-                <h3>📂 Documents</h3>
-                <p>Oversee and organize uploaded documents for accuracy, completeness, and compliance.</p>
-              </div>
-            </div>
-            <div className="activity-card">
-              <div className="top-bar" style={{ backgroundColor: '#38BDF8' }}></div>
-              <div className="content">
-                <h4>Most Recent Uploaded Document</h4>
-                <p><strong>contract.pdf</strong> (Pending)</p>
-                <button onClick={() => navigate('/admin-dashboard/documents')}>Expand...</button>
-                <small>3 hours ago</small>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Dynamic Dashboard Content */}
+      <div className="dashboard-content">{renderContent()}</div>
     </div>
   );
 }

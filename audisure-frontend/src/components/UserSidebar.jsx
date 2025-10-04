@@ -1,4 +1,4 @@
-import { FaTachometerAlt, FaUpload, FaList, FaCheckCircle } from "react-icons/fa";
+import { FaTachometerAlt, FaUpload, FaCheckCircle, FaBell } from "react-icons/fa";
 
 export default function UserSidebar({ active = "dashboard", onHoverChange, onSelectFeature }) {
   return (
@@ -8,9 +8,9 @@ export default function UserSidebar({ active = "dashboard", onHoverChange, onSel
       onMouseLeave={() => onHoverChange(false)}
     >
       <div className="sidebar-title">User Panel</div>
+
       <nav>
         <ul>
-          {/* Dashboard */}
           <li
             className={`menu-item ${active === "dashboard" ? "active" : ""}`}
             onClick={() => onSelectFeature("dashboard")}
@@ -19,7 +19,6 @@ export default function UserSidebar({ active = "dashboard", onHoverChange, onSel
             <span>Dashboard</span>
           </li>
 
-          {/* Upload */}
           <li
             className={`menu-item ${active === "upload" ? "active" : ""}`}
             onClick={() => onSelectFeature("upload")}
@@ -28,16 +27,6 @@ export default function UserSidebar({ active = "dashboard", onHoverChange, onSel
             <span>Upload</span>
           </li>
 
-          {/* View Tasks */}
-          <li
-            className={`menu-item ${active === "tasks" ? "active" : ""}`}
-            onClick={() => onSelectFeature("tasks")}
-          >
-            <FaList size={20} />
-            <span>View Tasks</span>
-          </li>
-
-          {/* Check Status */}
           <li
             className={`menu-item ${active === "status" ? "active" : ""}`}
             onClick={() => onSelectFeature("status")}
@@ -45,8 +34,17 @@ export default function UserSidebar({ active = "dashboard", onHoverChange, onSel
             <FaCheckCircle size={20} />
             <span>Check Status</span>
           </li>
+
+          <li
+            className={`menu-item ${active === "notifications" ? "active" : ""}`}
+            onClick={() => onSelectFeature("notifications")}
+          >
+            <FaBell size={20} />
+            <span>Notifications</span>
+          </li>
         </ul>
       </nav>
+
       <div className="logged-in">
         Logged in as:<br /><strong>User</strong>
       </div>

@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-import Sidebar from "../components/AdminSidebar";
-import Topbar from "../components/AdminTopbar";
 import "../styles/assign.css";
 
 export default function Assign() {
@@ -18,8 +16,6 @@ export default function Assign() {
     "Generate Report",
     "Flag Inconsistencies",
   ];
-
-  const userFirstName = localStorage.getItem("firstName") || "Admin";
 
   // Fetch users and recent tasks (last 3 days)
   useEffect(() => {
@@ -48,11 +44,9 @@ export default function Assign() {
   }, []);
 
   const handleTaskChange = (task) => {
-    if (selectedTasks.includes(task)) {
-      setSelectedTasks(selectedTasks.filter((t) => t !== task));
-    } else {
-      setSelectedTasks([...selectedTasks, task]);
-    }
+    setSelectedTasks((prev) =>
+      prev.includes(task) ? prev.filter((t) => t !== task) : [...prev, task]
+    );
   };
 
   const handleAssign = async (e) => {
@@ -64,7 +58,6 @@ export default function Assign() {
     if (allTasks.length === 0)
       return setStatusMessage("❌ Please select at least one task");
 
-    // Prepare task objects
     const newTasks = allTasks.map((task, idx) => ({
       taskUid: `TSK-${String(tasks.length + idx + 1).padStart(3, "0")}`,
       taskDescription: task,
@@ -77,10 +70,10 @@ export default function Assign() {
         body: JSON.stringify({ user_email: selectedUser, tasks: newTasks }),
       });
       const data = await res.json();
+
       if (data.success) {
         setStatusMessage("✅ Tasks assigned successfully");
 
-        // Refresh recent tasks after assigning
         const refresh = await fetch(
           "http://localhost:5000/api/admin/tasks/recent"
         );
@@ -99,13 +92,10 @@ export default function Assign() {
 
   const handleAction = async (taskId, action) => {
     if (
-      action === "Archive" &&
-      !window.confirm("Are you sure you want to archive this task?")
-    )
-      return;
-    if (
-      action === "Delete" &&
-      !window.confirm("Are you sure you want to delete this task?")
+      (action === "Archive" &&
+        !window.confirm("Are you sure you want to archive this task?")) ||
+      (action === "Delete" &&
+        !window.confirm("Are you sure you want to delete this task?"))
     )
       return;
 
@@ -125,6 +115,7 @@ export default function Assign() {
         }
       );
       const data = await res.json();
+
       if (data.success) {
         setTasks((prev) => prev.filter((t) => t.task_id !== taskId));
         setStatusMessage(`✅ Task ${action}d successfully`);
@@ -136,100 +127,91 @@ export default function Assign() {
   };
 
   return (
-    <div>
-      <Sidebar active="assign" />
-      <Topbar adminName={userFirstName} />
+    <div className="assign-container">
+      <h2>📝 Assign Tasks</h2>
 
-      <div className="dashboard-content">
-        <h2>Assign Tasks</h2>
-        {statusMessage && (
-          <div
-            className={`status-message ${
-              statusMessage.includes("❌") ? "status-error" : "status-success"
-            }`}
-          >
-            {statusMessage}
-          </div>
-        )}
+      {statusMessage && (
+        <div
+          className={`status-message ${
+            statusMessage.includes("❌") ? "status-error" : "status-success"
+          }`}
+        >
+          {statusMessage}
+        </div>
+      )}
 
-        <form onSubmit={handleAssign} className="assign-form">
-          <label>Assign To:</label>
-          <select
-            value={selectedUser}
-            onChange={(e) => setSelectedUser(e.target.value)}
-            required
-          >
-            <option value="">-- Select User --</option>
-            {users.map((u) => (
-              <option key={u.email} value={u.email}>
-                {u.first_name} {u.last_name} ({u.email})
-              </option>
-            ))}
-          </select>
+      <form onSubmit={handleAssign} className="assign-form">
+        <label>Assign To:</label>
+        <select
+          value={selectedUser}
+          onChange={(e) => setSelectedUser(e.target.value)}
+          required
+        >
+          <option value="">-- Select User --</option>
+          {users.map((u) => (
+            <option key={u.email} value={u.email}>
+              {u.first_name} {u.last_name} ({u.email})
+            </option>
+          ))}
+        </select>
 
-          <label>
-            <strong>Select Tasks:</strong>
-          </label>
-          <div className="task-checkboxes">
-            {PREDEFINED_TASKS.map((task) => (
-              <label key={task} className="checkbox-label">
-                <input
-                  type="checkbox"
-                  value={task}
-                  checked={selectedTasks.includes(task)}
-                  onChange={() => handleTaskChange(task)}
-                />{" "}
-                {task}
-              </label>
-            ))}
-          </div>
+        <label><strong>Select Tasks:</strong></label>
+        <div className="task-checkboxes">
+          {PREDEFINED_TASKS.map((task) => (
+            <label key={task} className="checkbox-label">
+              <input
+                type="checkbox"
+                value={task}
+                checked={selectedTasks.includes(task)}
+                onChange={() => handleTaskChange(task)}
+              />{" "}
+              {task}
+            </label>
+          ))}
+        </div>
 
-          <label>
-            <strong>Custom Task:</strong>
-          </label>
-          <input
-            type="text"
-            value={customTask}
-            placeholder="Enter a custom task..."
-            onChange={(e) => setCustomTask(e.target.value)}
-          />
+        <label><strong>Custom Task:</strong></label>
+        <input
+          type="text"
+          value={customTask}
+          placeholder="Enter a custom task..."
+          onChange={(e) => setCustomTask(e.target.value)}
+        />
 
-          <button type="submit">Assign Task</button>
-        </form>
+        <button type="submit">Assign Task</button>
+      </form>
 
-        {/* ✅ Only show "Recently Assigned Tasks" if tasks exist */}
-        {tasks.length > 0 && (
-          <div className="task-list">
-            <h3>Recently Assigned Tasks (Last 3 Days)</h3>
-            {tasks.map((t) => (
-              <div key={t.task_id || t.task_uid} className="task-item">
-                <strong>Task ID: {t.task_uid}</strong>
-                <div>{t.task_description}</div>
-                <div>Assigned to: {t.user_email}</div>
-                <div>
-                  Status:{" "}
-                  <span className={`status status-${t.status?.toLowerCase()}`}>
-                    {t.status}
-                  </span>
-                </div>
-                <div className="action-links">
-                  <button onClick={() => handleAction(t.task_id, "Edit")}>
-                    Edit
-                  </button>
-                  <button onClick={() => handleAction(t.task_id, "Archive")}>
-                    Archive
-                  </button>
-                  {t.status === "Done" && (
-                    <button onClick={() => handleAction(t.task_id, "Delete")}>
-                      Delete
-                    </button>
-                  )}
-                </div>
+      {tasks.length > 0 && (
+        <div className="task-list">
+          <h3>Recently Assigned Tasks (Last 3 Days)</h3>
+          {tasks.map((t) => (
+            <div key={t.task_id || t.task_uid} className="task-item">
+              <strong>Task ID: {t.task_uid}</strong>
+              <div>{t.task_description}</div>
+              <div>Assigned to: {t.user_email}</div>
+              <div>
+                Status:{" "}
+                <span className={`status status-${t.status?.toLowerCase()}`}>
+                  {t.status}
+                </span>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+              <div className="action-links">
+                <button onClick={() => handleAction(t.task_id, "Edit")}>
+                  Edit
+                </button>
+                <button onClick={() => handleAction(t.task_id, "Archive")}>
+                  Archive
+                </button>
+                {t.status === "Done" && (
+                  <button onClick={() => handleAction(t.task_id, "Delete")}>
+                    Delete
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

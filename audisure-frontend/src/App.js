@@ -1,9 +1,11 @@
 import { Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";   // ✅ add this
+import RegisterPage from "./pages/RegisterPage";
 import UserDashboard from "./pages/UserDashboard";
 import UploadDocuments from "./pages/UploadDocuments";
+import ViewStatus from "./pages/ViewStatus";           // ✅ add this
+import UserNotifications from "./pages/UserNotifications"; // ✅ add this
 import AdminDashboard from "./pages/AdminDashboard";
 import Verify from "./pages/Verify";
 import Assign from "./pages/Assign";
@@ -16,61 +18,83 @@ export default function App() {
       {/* Root goes to HomePage */}
       <Route path="/" element={<HomePage />} />
 
-      {/* Login page */}
+      {/* Login & Register */}
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
 
-      {/* Register page */}
-      <Route path="/register" element={<RegisterPage />} /> {/* ✅ now works */}
-
-      {/* User dashboard */}
+      {/* ==============================
+           USER DASHBOARD & PAGES
+      =============================== */}
       <Route
         path="/user-dashboard"
         element={
-          <ProtectedRoute allowedRoles={['user', 'applicant']}>
+          <ProtectedRoute allowedRoles={["user", "applicant"]}>
             <UserDashboard />
           </ProtectedRoute>
         }
       />
 
-      {/* User Upload Document page */}
       <Route
-        path="/upload"
+        path="/user-dashboard/upload"
         element={
-          <ProtectedRoute allowedRoles={['user', 'applicant']}>
+          <ProtectedRoute allowedRoles={["user", "applicant"]}>
             <UploadDocuments />
           </ProtectedRoute>
         }
       />
 
-      {/* Admin pages */}
+      <Route
+        path="/user-dashboard/status"
+        element={
+          <ProtectedRoute allowedRoles={["user", "applicant"]}>
+            <ViewStatus />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/user-dashboard/notifications"
+        element={
+          <ProtectedRoute allowedRoles={["user", "applicant"]}>
+            <UserNotifications />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* ==============================
+           ADMIN DASHBOARD & PAGES
+      =============================== */}
       <Route
         path="/admin-dashboard"
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={["admin"]}>
             <AdminDashboard />
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/admin-dashboard/verify"
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={["admin"]}>
             <Verify />
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/admin-dashboard/assign"
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={["admin"]}>
             <Assign />
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/admin-dashboard/documents"
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={["admin"]}>
             <Documents />
           </ProtectedRoute>
         }
