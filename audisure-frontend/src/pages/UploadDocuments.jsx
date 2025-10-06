@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import "../styles/user_styles.css";
+import "../styles/upload_documents.css";
 
 export default function UploadDocuments() {
   const [file, setFile] = useState(null);
@@ -18,7 +18,7 @@ export default function UploadDocuments() {
 
   const handleUpload = async (e) => {
     e.preventDefault();
-    if (!file) return setMessage("Please select a file first.");
+    if (!file) return setMessage("⚠️ Please select a file first.");
     if (!userEmail) return setMessage("User email not available.");
 
     const formData = new FormData();
@@ -34,7 +34,7 @@ export default function UploadDocuments() {
       });
 
       if (res.data.success) {
-        setMessage("File uploaded successfully!");
+        setMessage("✅ File uploaded successfully!");
         setUploadedDoc({
           uid: res.data.document_uid,
           title: file.name,
@@ -47,36 +47,61 @@ export default function UploadDocuments() {
       }
     } catch (err) {
       console.error("Upload error:", err);
-      setMessage("Upload failed. Check console for details.");
+      setMessage("❌ Upload failed. Check console for details.");
     } finally {
       setUploading(false);
     }
   };
 
   return (
-    <div className="feature-container">
-      <h2>Upload Document</h2>
+    <div className="upload-container">
+      <h1 className="upload-title">📤 Upload Your Documents</h1>
+      <p className="upload-description">
+        This is where you can upload your required documents for verification and approval.  
+        Make sure your files are clear and readable — accepted formats include PDF, JPG, and PNG.
+      </p>
 
-      <form onSubmit={handleUpload}>
-        <input type="file" onChange={handleFileChange} />
-        <button type="submit" className="btn btn-red">Upload</button>
+      <form onSubmit={handleUpload} className="upload-form">
+        <label htmlFor="file-upload" className="file-label">
+          {file ? (
+            <span className="file-name">📄 {file.name}</span>
+          ) : (
+            <>
+              <span className="file-icon">📁</span>
+              <span className="file-text">Click to select or drag a file here</span>
+            </>
+          )}
+        </label>
+        <input
+          id="file-upload"
+          type="file"
+          onChange={handleFileChange}
+          className="file-input"
+        />
+
+        <button type="submit" className="btn btn-red" disabled={uploading}>
+          {uploading ? "Uploading..." : "Upload Document"}
+        </button>
       </form>
 
       {uploading && (
-        <div className="uploading-bar">
-          <div></div>
+        <div className="upload-progress">
+          <div className="progress-bar"></div>
         </div>
       )}
 
-      {message && <p>{message}</p>}
+      {message && <p className="upload-message">{message}</p>}
 
       {uploadedDoc && (
-        <div className="uploaded-doc">
+        <div className="uploaded-info">
+          <h3>📁 Uploaded Document Details</h3>
           <p><strong>Document UID:</strong> {uploadedDoc.uid}</p>
           <p><strong>Title:</strong> {uploadedDoc.title}</p>
           <p>
             <strong>Cloudinary URL:</strong>{" "}
-            <a href={uploadedDoc.url} target="_blank" rel="noopener noreferrer">{uploadedDoc.url}</a>
+            <a href={uploadedDoc.url} target="_blank" rel="noopener noreferrer">
+              {uploadedDoc.url}
+            </a>
           </p>
           <p><strong>File Type:</strong> {uploadedDoc.fileType}</p>
         </div>

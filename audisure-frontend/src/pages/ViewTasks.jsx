@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "../styles/user_styles.css"; // Ensure this includes Audisure styles
+import "../styles/user_styles.css"; // Matches your Audisure theme
 
 export default function ViewTasks() {
   const [tasks, setTasks] = useState([]);
@@ -14,10 +14,19 @@ export default function ViewTasks() {
 
     const fetchTasks = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/tasks/${userEmail}`);
+        const res = await fetch(
+          `https://audisure-fullstack.onrender.com/web/tasks.php?email=${encodeURIComponent(
+            userEmail
+          )}`
+        );
         if (!res.ok) throw new Error("Failed to fetch tasks");
+
         const data = await res.json();
-        setTasks(data || []);
+        if (data.success) {
+          setTasks(data.tasks || []);
+        } else {
+          throw new Error(data.message || "No tasks found");
+        }
       } catch (err) {
         console.error("Fetch tasks error:", err);
         setError(err.message);
@@ -31,13 +40,17 @@ export default function ViewTasks() {
 
   const updateStatus = async (taskId, newStatus) => {
     try {
-      const res = await fetch("http://localhost:5000/api/tasks/update", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ task_id: taskId, status: newStatus }),
-      });
+      const res = await fetch(
+        "https://audisure-fullstack.onrender.com/web/update_tasks.php",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ task_id: taskId, status: newStatus }),
+        }
+      );
 
-      if (!res.ok) throw new Error("Failed to update task");
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message || "Failed to update task");
 
       setTasks((prev) =>
         prev.map((task) =>
@@ -55,13 +68,17 @@ export default function ViewTasks() {
 
   const archiveTask = async (taskId) => {
     try {
-      const res = await fetch("http://localhost:5000/api/tasks/archive", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ task_id: taskId }),
-      });
+      const res = await fetch(
+        "https://audisure-fullstack.onrender.com/web/archive_tasks.php",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ task_id: taskId }),
+        }
+      );
 
-      if (!res.ok) throw new Error("Failed to archive task");
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message || "Failed to archive task");
 
       setTasks((prev) => prev.filter((task) => task.task_id !== taskId));
       setSuccessMsg("Task archived successfully!");
@@ -78,7 +95,10 @@ export default function ViewTasks() {
   if (tasks.length === 0) return <p>No tasks assigned.</p>;
 
   return (
-    <div className="feature-container" style={{ maxWidth: "800px", margin: "2rem auto" }}>
+    <div
+      className="feature-container"
+      style={{ maxWidth: "800px", margin: "2rem auto" }}
+    >
       <h2>Your Assigned Tasks</h2>
       {successMsg && <p style={{ color: "green" }}>{successMsg}</p>}
 
