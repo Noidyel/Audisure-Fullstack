@@ -125,8 +125,8 @@ export default function HomePage() {
       </header>
 
       {/* QR Code Section */}
-      <section className="qr-section section-spacing" style={{ marginTop: '4rem' }}>
-  <h2 className="section-title" style={{ margin: 0 }}>Try Our App</h2>
+      <section className="qr-section section-spacing">
+  <h2 className="section-title">Try Our App</h2>
   <div className="qr-container">
     <img src={QRCodeImage} alt="Audisure QR Code" className="qr-img" />
     <p>Scan to download the Audisure mobile app</p>
