@@ -9,13 +9,17 @@ export default function Documents() {
   const [error, setError] = useState("");
   const adminId = parseInt(localStorage.getItem("adminId") || "1");
 
+  // Base URL for deployed backend
+  const BASE_URL = "https://audisure-backend.onrender.com/api";
+
   // Fetch documents
   const fetchDocuments = async () => {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("http://localhost:5000/api/documents");
+      const res = await fetch(`${BASE_URL}/documents`);
       const data = await res.json();
+
       if (Array.isArray(data)) {
         const docsWithDefaults = data.map((doc) => ({
           ...doc,
@@ -31,7 +35,7 @@ export default function Documents() {
       }
     } catch (err) {
       console.error(err);
-      setError("Error fetching documents from server");
+      setError("Error fetching documents from server. Check backend URL or CORS.");
     }
     setLoading(false);
   };
@@ -52,14 +56,11 @@ export default function Documents() {
   // Update document status
   const updateStatus = async (docId, action) => {
     try {
-      const res = await fetch(
-        `http://localhost:5000/api/documents/update-status/${docId}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: action, changed_by: adminId }),
-        }
-      );
+      const res = await fetch(`${BASE_URL}/documents/update-status/${docId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: action, changed_by: adminId }),
+      });
 
       const data = await res.json();
 
@@ -67,19 +68,13 @@ export default function Documents() {
         setDocuments((prev) =>
           prev.map((doc) =>
             doc.id === docId
-              ? {
-                  ...doc,
-                  status:
-                    action.charAt(0).toUpperCase() + action.slice(1),
-                }
+              ? { ...doc, status: action.charAt(0).toUpperCase() + action.slice(1) }
               : doc
           )
         );
-        setStatusMessage(
-          `✅ Changed status to '${action.charAt(0).toUpperCase() + action.slice(1)}'`
-        );
+        setStatusMessage(`✅ Changed status to '${action.charAt(0).toUpperCase() + action.slice(1)}'`);
       } else {
-        alert("Failed to update status in database");
+        alert(data.message || "Failed to update status in database");
       }
     } catch (err) {
       console.error(err);
@@ -93,9 +88,7 @@ export default function Documents() {
 
       {loading && <p>Loading documents...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
-      {statusMessage && (
-        <div className="status-message">{statusMessage}</div>
-      )}
+      {statusMessage && <div className="status-message">{statusMessage}</div>}
 
       {!loading && !error && (
         <table className="documents-table">
@@ -113,89 +106,41 @@ export default function Documents() {
           <tbody>
             {documents.map((doc) => {
               const status = doc.status || "Pending";
-              const fileName = doc.file_path
-                ? doc.file_path.split("/").pop()
-                : "N/A";
+              const fileName = doc.file_path ? doc.file_path.split("/").pop() : "N/A";
 
               return (
-                <tr
-                  key={doc.id}
-                  className={`doc-row status-${status.toLowerCase()}`}
-                >
+                <tr key={doc.id} className={`doc-row status-${status.toLowerCase()}`}>
                   <td>{doc.id || "N/A"}</td>
-                  <td>
-                    {doc.firstName} {doc.lastName}
-                  </td>
+                  <td>{doc.firstName} {doc.lastName}</td>
                   <td>
                     {doc.file_path ? (
-                      <a
-                        href={doc.file_path}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
+                      <a href={doc.file_path} target="_blank" rel="noopener noreferrer">
                         {fileName}
                       </a>
-                    ) : (
-                      "N/A"
-                    )}
+                    ) : "N/A"}
                   </td>
-                  <td className={`status-${status.toLowerCase()}`}>
-                    {status}
-                  </td>
-                  <td>
-                    {doc.created_at
-                      ? new Date(doc.created_at).toLocaleString()
-                      : "N/A"}
-                  </td>
+                  <td className={`status-${status.toLowerCase()}`}>{status}</td>
+                  <td>{doc.created_at ? new Date(doc.created_at).toLocaleString() : "N/A"}</td>
                   <td>
                     <div className="hash-container">
                       <span title={doc.document_hash || ""}>
-                        {doc.document_hash
-                          ? doc.document_hash.slice(0, 12) + "..."
-                          : "N/A"}
+                        {doc.document_hash ? doc.document_hash.slice(0, 12) + "..." : "N/A"}
                       </span>
                       {doc.document_hash && (
-                        <button
-                          className="copy-btn"
-                          onClick={() => copyHash(doc.document_hash)}
-                        >
-                          Copy
-                        </button>
+                        <button className="copy-btn" onClick={() => copyHash(doc.document_hash)}>Copy</button>
                       )}
                     </div>
                   </td>
                   <td>
                     {["Approved", "Rejected"].includes(status) ? (
-                      <span
-                        style={{
-                          color: "gray",
-                          cursor: "not-allowed",
-                        }}
-                      >
-                        Approve | Pending | Reject
-                      </span>
+                      <span style={{ color: "gray", cursor: "not-allowed" }}>Approve | Pending | Reject</span>
                     ) : (
                       <>
-                        <button
-                          className="approve-btn"
-                          onClick={() => updateStatus(doc.id, "approved")}
-                        >
-                          Approve
-                        </button>{" "}
+                        <button className="approve-btn" onClick={() => updateStatus(doc.id, "approved")}>Approve</button>{" "}
                         |{" "}
-                        <button
-                          className="pending-btn"
-                          onClick={() => updateStatus(doc.id, "pending")}
-                        >
-                          Pending
-                        </button>{" "}
+                        <button className="pending-btn" onClick={() => updateStatus(doc.id, "pending")}>Pending</button>{" "}
                         |{" "}
-                        <button
-                          className="reject-btn"
-                          onClick={() => updateStatus(doc.id, "rejected")}
-                        >
-                          Reject
-                        </button>
+                        <button className="reject-btn" onClick={() => updateStatus(doc.id, "rejected")}>Reject</button>
                       </>
                     )}
                   </td>

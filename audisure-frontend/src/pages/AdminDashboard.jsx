@@ -3,7 +3,7 @@ import AdminSidebar from "../components/AdminSidebar";
 import Topbar from "../components/AdminTopbar";
 import Verify from "./Verify";
 import Assign from "./Assign";
-import Documents from "./Documents";
+import Documents from "./ViewDocuments";
 import "../styles/dashboard.css";
 
 export default function AdminDashboard() {

@@ -3,6 +3,8 @@ import axios from "axios";
 import '../styles/dashboard.css';
 import "../styles/verify.css";
 
+const BASE_URL = "https://audisure-backend.onrender.com/api";
+
 export default function Verify() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -11,7 +13,7 @@ export default function Verify() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/admin/users");
+        const res = await axios.get(`${BASE_URL}/admin/users`);
         if (res.data.success) setUsers(res.data.users);
         else setError("Failed to fetch users");
       } catch (err) {
@@ -26,7 +28,7 @@ export default function Verify() {
 
   const handleStatusChange = async (id, newStatus) => {
     try {
-      const res = await axios.put(`http://localhost:5000/api/admin/users/${id}`, {
+      const res = await axios.put(`${BASE_URL}/admin/users/${id}`, {
         role: "",
         status: newStatus
       });
@@ -87,18 +89,14 @@ export default function Verify() {
 
   return (
     <div className="dashboard-content" style={{ padding: '20px' }}>
-      {/* Main heading */}
       <h2 className="verify-main-heading">Verify Users</h2>
 
-      {/* Admins table */}
       <h3 className="verify-subheading">Admins</h3>
       {renderTable(admins)}
 
-      {/* Staff / Users table */}
       <h3 className="verify-subheading">Staff / Users</h3>
       {renderTable(staff)}
 
-      {/* Applicants table */}
       <h3 className="verify-subheading">Applicants</h3>
       {renderTable(applicants, true, true)} {/* hide status and actions */}
     </div>

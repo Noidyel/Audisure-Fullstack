@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import "../styles/user_styles.css"; // Matches your Audisure theme
+import axios from "axios";
+import "../styles/userdashboard-features.css";
 
-// Use localhost for now
-const BASE_URL = "http://localhost:5000/api";
+// Always use deployed backend
+const BASE_URL = "https://audisure-backend.onrender.com/api";
 
 export default function ViewTasks() {
   const [tasks, setTasks] = useState([]);
@@ -17,18 +18,13 @@ export default function ViewTasks() {
 
     const fetchTasks = async () => {
       try {
-        const res = await fetch(`${BASE_URL}/tasks.php?email=${encodeURIComponent(userEmail)}`);
-        if (!res.ok) throw new Error("Failed to fetch tasks");
-
-        const data = await res.json();
-        if (data.success) {
-          setTasks(data.tasks || []);
-        } else {
-          throw new Error(data.message || "No tasks found");
-        }
+        const res = await axios.get(`${BASE_URL}/tasks/${encodeURIComponent(userEmail)}`);
+        setTasks(res.data); // tasks.js returns array directly
       } catch (err) {
         console.error("Fetch tasks error:", err);
-        setError(err.message);
+        if (err.response) setError(err.response.data.message || "Server Error");
+        else if (err.request) setError("No response from server. Check backend URL or CORS.");
+        else setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -39,46 +35,29 @@ export default function ViewTasks() {
 
   const updateStatus = async (taskId, newStatus) => {
     try {
-      const res = await fetch(`${BASE_URL}/update_tasks.php`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ task_id: taskId, status: newStatus }),
-      });
+      const res = await axios.post(`${BASE_URL}/tasks/update`, { task_id: taskId, status: newStatus });
+      if (!res.data.success) throw new Error(res.data.message || "Failed to update task");
 
-      const data = await res.json();
-      if (!data.success) throw new Error(data.message || "Failed to update task");
-
-      setTasks((prev) =>
-        prev.map((task) =>
-          task.task_id === taskId ? { ...task, status: newStatus } : task
-        )
-      );
-
+      setTasks((prev) => prev.map((t) => (t.task_id === taskId ? { ...t, status: newStatus } : t)));
       setSuccessMsg(`Task updated to "${newStatus}" successfully!`);
       setTimeout(() => setSuccessMsg(""), 3000);
     } catch (err) {
       console.error("Update status error:", err);
-      setError(err.message);
+      setError(err.response?.data?.message || err.message);
     }
   };
 
   const archiveTask = async (taskId) => {
     try {
-      const res = await fetch(`${BASE_URL}/archive_tasks.php`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ task_id: taskId }),
-      });
+      const res = await axios.post(`${BASE_URL}/tasks/archive`, { task_id: taskId });
+      if (!res.data.success) throw new Error(res.data.message || "Failed to archive task");
 
-      const data = await res.json();
-      if (!data.success) throw new Error(data.message || "Failed to archive task");
-
-      setTasks((prev) => prev.filter((task) => task.task_id !== taskId));
+      setTasks((prev) => prev.filter((t) => t.task_id !== taskId));
       setSuccessMsg("Task archived successfully!");
       setTimeout(() => setSuccessMsg(""), 3000);
     } catch (err) {
       console.error("Archive task error:", err);
-      setError(err.message);
+      setError(err.response?.data?.message || err.message);
     }
   };
 
@@ -89,8 +68,12 @@ export default function ViewTasks() {
 
   return (
     <div className="feature-container" style={{ maxWidth: "800px", margin: "2rem auto" }}>
-      <h2>Your Assigned Tasks</h2>
-      {successMsg && <p style={{ color: "green" }}>{successMsg}</p>}
+      <h1 className="feature-header">📝 Your Assigned Tasks</h1>
+<p className="feature-description">
+  Here you can see all your assigned tasks along with their current status.  
+  Update your progress or archive completed tasks to stay organized.
+</p>
+{successMsg && <p style={{ color: "green" }}>{successMsg}</p>}
 
       <table className="task-table">
         <thead>

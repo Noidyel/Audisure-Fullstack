@@ -1,20 +1,22 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // <-- added
 import Sidebar from "../components/UserSidebar";
 import Topbar from "../components/UserTopbar";
 import UploadDocuments from "./UploadDocuments";
-import ViewStatus from "./ViewStatus";
+import ViewStatus from "./ViewDocumentsStatus";
 import ViewTasks from "./ViewTasks"; // <-- changed
 import "../styles/dashboard.css";
 
 export default function UserDashboard() {
+  const navigate = useNavigate(); // <-- added
   const userFirstName = localStorage.getItem("firstName") || "Nigel";
   const [sidebarHovered, setSidebarHovered] = useState(false);
   const [activeFeature, setActiveFeature] = useState("dashboard");
 
   const handleLogout = () => {
-    localStorage.clear();
-    window.location.href = "/home";
-  };
+  localStorage.clear();
+  window.location.href = "/"; // <-- redirect to HomePage instead of login
+};
 
   const activities = [
     { id: 1, text: "You uploaded a document", time: "5 min ago" },

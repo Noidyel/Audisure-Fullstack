@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import "../styles/view_status.css";
+import "../styles/userdashboard-features.css";
 
 export default function ViewStatus() {
   const [documents, setDocuments] = useState([]);
@@ -9,11 +9,8 @@ export default function ViewStatus() {
 
   const userId = localStorage.getItem("userId"); // assuming userId is stored after login
 
-  // Base URL for API
-  const BASE_URL =
-    process.env.NODE_ENV === "development"
-      ? "http://localhost:5000/api" // local backend
-      : "https://audisure-fullstack.onrender.com/api"; // deployed backend
+  // Use your deployed backend URL
+  const BASE_URL = "https://audisure-backend.onrender.com/api";
 
   useEffect(() => {
     if (!userId) {
@@ -40,7 +37,7 @@ export default function ViewStatus() {
     };
 
     fetchStatuses();
-  }, [userId, BASE_URL]);
+  }, [userId]);
 
   const renderStatus = (status) => {
     switch (status) {
@@ -59,7 +56,6 @@ export default function ViewStatus() {
     }
   };
 
-  // Loading and error states
   if (!userId) return <p>Loading user info...</p>;
   if (loading) return <p>Loading document statuses...</p>;
   if (error) return <p style={{ color: "red" }}>Error: {error}</p>;
@@ -68,10 +64,10 @@ export default function ViewStatus() {
 
   return (
     <div className="page-container">
-      <h1 className="page-title">📄 Document Status</h1>
-      <p className="page-description">
-        View the current status of your submitted documents in real-time.
-      </p>
+      <h1 className="feature-header">📄 Document Status</h1>
+<p className="feature-description">
+  Track the progress of your submitted documents in real time. From pending to approval, you’ll always know the current stage of your application and avoid unnecessary delays or confusion.
+</p>
 
       <div className="table-wrapper">
         <table className="status-table">

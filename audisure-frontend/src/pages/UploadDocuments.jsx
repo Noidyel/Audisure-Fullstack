@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import "../styles/upload_documents.css";
+import "../styles/userdashboard-features.css";
 
 export default function UploadDocuments() {
   const [file, setFile] = useState(null);
@@ -55,11 +56,11 @@ export default function UploadDocuments() {
 
   return (
     <div className="upload-container">
-      <h1 className="upload-title">📤 Upload Your Documents</h1>
-      <p className="upload-description">
-        This is where you can upload your required documents for verification and approval.  
-        Make sure your files are clear and readable — accepted formats include PDF, JPG, and PNG.
-      </p>
+      <h1 className="feature-header">📤 Upload Your Documents</h1>
+<p className="feature-description">
+  This is where you can upload your required documents for verification and approval.  
+  Make sure your files are clear and readable — accepted formats include PDF, JPG, and PNG.
+</p>
 
       <form onSubmit={handleUpload} className="upload-form">
         <label htmlFor="file-upload" className="file-label">
