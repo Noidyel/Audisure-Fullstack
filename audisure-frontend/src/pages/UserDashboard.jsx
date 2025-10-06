@@ -3,7 +3,7 @@ import Sidebar from "../components/UserSidebar";
 import Topbar from "../components/UserTopbar";
 import UploadDocuments from "./UploadDocuments";
 import ViewStatus from "./ViewStatus";
-import UserNotifications from "./UserNotifications";
+import ViewTasks from "./ViewTasks"; // <-- changed
 import "../styles/dashboard.css";
 
 export default function UserDashboard() {
@@ -16,7 +16,6 @@ export default function UserDashboard() {
     window.location.href = "/home";
   };
 
-  // Mock user activities
   const activities = [
     { id: 1, text: "You uploaded a document", time: "5 min ago" },
     { id: 2, text: "Your task was marked in progress", time: "20 min ago" },
@@ -24,15 +23,14 @@ export default function UserDashboard() {
     { id: 4, text: "Your document was approved", time: "2 hours ago" },
   ];
 
-  // Render the correct section
   const renderContent = () => {
     switch (activeFeature) {
       case "upload":
         return <UploadDocuments />;
       case "status":
         return <ViewStatus />;
-      case "notifications":
-        return <UserNotifications />;
+      case "tasks": // <-- changed from "notifications"
+        return <ViewTasks />; // <-- changed
       default:
         return (
           <>
@@ -55,12 +53,12 @@ export default function UserDashboard() {
                 </p>
               </div>
 
-              <div className="card card-neutral" onClick={() => setActiveFeature("notifications")}>
-                <strong>🔔 Notifications</strong>
+              <div className="card card-neutral" onClick={() => setActiveFeature("tasks")}>
+                <strong>📝 View Tasks</strong>
                 <p>
-                  Receive instant updates whenever there are changes to your documents.
-                  Whether a task is assigned, a status is updated, or a document is approved,
-                  you’ll stay informed at every step of the process.
+                  See all your assigned tasks and their progress.
+                  Keep track of what needs to be done and stay organized
+                  so you never miss an important action.
                 </p>
               </div>
             </div>

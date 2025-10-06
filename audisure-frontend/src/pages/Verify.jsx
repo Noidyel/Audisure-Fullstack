@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Topbar from "../components/AdminTopbar";
-import Sidebar from "../components/AdminSidebar";
 import '../styles/dashboard.css';
 import "../styles/verify.css";
 
@@ -88,26 +86,21 @@ export default function Verify() {
   );
 
   return (
-    <div>
-      <Sidebar active="verify" />
-      <Topbar adminName="Admin Nigel" />
+    <div className="dashboard-content" style={{ padding: '20px' }}>
+      {/* Main heading */}
+      <h2 className="verify-main-heading">Verify Users</h2>
 
-      <div className="dashboard-content" style={{ padding: '20px' }}>
-        {/* Main heading */}
-        <h2 className="verify-main-heading">Verify Users</h2>
+      {/* Admins table */}
+      <h3 className="verify-subheading">Admins</h3>
+      {renderTable(admins)}
 
-        {/* Admins table */}
-        <h3 className="verify-subheading">Admins</h3>
-        {renderTable(admins)}
+      {/* Staff / Users table */}
+      <h3 className="verify-subheading">Staff / Users</h3>
+      {renderTable(staff)}
 
-        {/* Staff / Users table */}
-        <h3 className="verify-subheading">Staff / Users</h3>
-        {renderTable(staff)}
-
-        {/* Applicants table */}
-        <h3 className="verify-subheading">Applicants</h3>
-        {renderTable(applicants, true, true)} {/* hide status and actions */}
-      </div>
+      {/* Applicants table */}
+      <h3 className="verify-subheading">Applicants</h3>
+      {renderTable(applicants, true, true)} {/* hide status and actions */}
     </div>
   );
 }

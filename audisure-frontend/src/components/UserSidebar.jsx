@@ -1,4 +1,4 @@
-import { FaTachometerAlt, FaUpload, FaCheckCircle, FaBell } from "react-icons/fa";
+import { FaTachometerAlt, FaUpload, FaCheckCircle, FaTasks } from "react-icons/fa"; // <-- FaBell → FaTasks
 
 export default function UserSidebar({ active = "dashboard", onHoverChange, onSelectFeature }) {
   return (
@@ -36,11 +36,11 @@ export default function UserSidebar({ active = "dashboard", onHoverChange, onSel
           </li>
 
           <li
-            className={`menu-item ${active === "notifications" ? "active" : ""}`}
-            onClick={() => onSelectFeature("notifications")}
+            className={`menu-item ${active === "tasks" ? "active" : ""}`} // <-- changed from "notifications"
+            onClick={() => onSelectFeature("tasks")} // <-- changed from "notifications"
           >
-            <FaBell size={20} />
-            <span>Notifications</span>
+            <FaTasks size={20} /> {/* <-- changed icon */}
+            <span>Tasks</span> {/* <-- changed label */}
           </li>
         </ul>
       </nav>

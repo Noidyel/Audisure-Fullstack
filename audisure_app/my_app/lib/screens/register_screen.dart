@@ -39,7 +39,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     setState(() => isLoading = true);
 
-    final url = Uri.parse('http://192.168.254.100/audisure/audisure_app/audisure_api/register.php');
+    final url = Uri.parse('https://audisure-fullstack.onrender.com/api/auth/register');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},

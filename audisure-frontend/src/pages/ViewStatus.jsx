@@ -9,6 +9,12 @@ export default function ViewStatus() {
 
   const userId = localStorage.getItem("userId"); // assuming userId is stored after login
 
+  // Base URL for API
+  const BASE_URL =
+    process.env.NODE_ENV === "development"
+      ? "http://localhost:5000/api" // local backend
+      : "https://audisure-fullstack.onrender.com/api"; // deployed backend
+
   useEffect(() => {
     if (!userId) {
       setLoading(false);
@@ -17,12 +23,9 @@ export default function ViewStatus() {
 
     const fetchStatuses = async () => {
       try {
-        const response = await axios.get(
-          "https://audisure-fullstack.onrender.com/routes/status.php",
-          {
-            params: { user_id: userId } // sends ?user_id=xxx
-          }
-        );
+        const response = await axios.get(`${BASE_URL}/status`, {
+          params: { user_id: userId }, // query param for status.js
+        });
 
         if (!response.data.success)
           throw new Error(response.data.message || "Failed to fetch documents");
@@ -37,7 +40,7 @@ export default function ViewStatus() {
     };
 
     fetchStatuses();
-  }, [userId]);
+  }, [userId, BASE_URL]);
 
   const renderStatus = (status) => {
     switch (status) {

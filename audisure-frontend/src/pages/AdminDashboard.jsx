@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Sidebar from "../components/AdminSidebar";
+import AdminSidebar from "../components/AdminSidebar";
 import Topbar from "../components/AdminTopbar";
 import Verify from "./Verify";
 import Assign from "./Assign";
@@ -92,7 +92,10 @@ export default function AdminDashboard() {
   return (
     <div className="admin-dashboard-container">
       {/* Sidebar stays static */}
-      <Sidebar active={activeFeature} onSelectFeature={setActiveFeature} />
+      <AdminSidebar
+        active={activeFeature}
+        onSelectFeature={(feature) => setActiveFeature(feature)}
+      />
 
       {/* Topbar */}
       <Topbar adminName={adminFirstName} onLogout={handleLogout} />

@@ -21,12 +21,27 @@ $result = $stmt->get_result();
 
 if ($result->num_rows === 1) {
     $user = $result->fetch_assoc();
+
+    // DEBUG: show what password you typed and what's in DB
+    $debug = [
+        "typed_password" => $password,
+        "stored_password_hash" => $user['password']
+    ];
+
     if (password_verify($password, $user['password'])) {
-        // Remove password before returning user data
         unset($user['password']);
-        echo json_encode(["status" => "success", "message" => "Login successful", "user" => $user]);
+        echo json_encode([
+            "status" => "success",
+            "message" => "Login successful",
+            "user" => $user,
+            "debug" => $debug // this will be shown in response
+        ]);
     } else {
-        echo json_encode(["status" => "error", "message" => "Invalid password"]);
+        echo json_encode([
+            "status" => "error",
+            "message" => "Invalid password",
+            "debug" => $debug
+        ]);
     }
 } else {
     echo json_encode(["status" => "error", "message" => "Email not found"]);
