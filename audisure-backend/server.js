@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
+import { fileURLToPath } from "url";
 
 import authRoutes from "./routes/auth.js";
 import adminRoutes from "./routes/admin.js";
@@ -15,6 +16,10 @@ import db from "./db.js";
 
 dotenv.config();
 const app = express();
+
+// Get __dirname in ES module scope
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Middleware
 app.use(cors());
@@ -49,11 +54,12 @@ app.use("/api/tasks", tasksRoutes);
 app.use("/api/status", statusRoutes);
 
 // Serve React frontend build
-app.use(express.static(path.join(process.cwd(), "build")));
+const buildPath = path.join(__dirname, "../audisure-frontend/build");
+app.use(express.static(buildPath));
 
-// Root landing page fallback (React app)
+// Fallback: send index.html for any non-API route
 app.get("*", (req, res) => {
-  res.sendFile(path.join(process.cwd(), "build", "index.html"));
+  res.sendFile(path.join(buildPath, "index.html"));
 });
 
 // Start server
