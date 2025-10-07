@@ -17,7 +17,7 @@ function normalizeEmail(email) {
 // REGISTER
 // ========================
 router.post('/register', async (req, res) => {
-  const { firstName, lastName, email, password, role } = req.body;
+  const { first_name, last_name, email, password, role } = req.body;
   const normalizedEmail = normalizeEmail(email);
 
   try {
@@ -34,19 +34,23 @@ router.post('/register', async (req, res) => {
     // ✅ Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // ✅ Determine role (default to applicant if none provided)
-    const userRole = role ? role.toLowerCase() : 'applicant';
+    // ✅ Determine role (default to 'user' if not provided)
+    const userRole = role ? role.toLowerCase() : 'user';
 
-    // ✅ Insert new user safely with defaults
+    // ✅ Determine status based on role
+    const status = userRole === 'applicant' ? 'approved' : 'pending';
+
+    // ✅ Insert new user safely
     const [result] = await db.query(
       `INSERT INTO users (first_name, last_name, email, password, role, status, created_at)
-       VALUES (?, ?, ?, ?, ?, 'active', NOW())`,
+       VALUES (?, ?, ?, ?, ?, ?, NOW())`,
       [
-        firstName ? firstName.trim() : '',
-        lastName ? lastName.trim() : '',
+        first_name ? first_name.trim() : '',
+        last_name ? last_name.trim() : '',
         normalizedEmail,
         hashedPassword,
         userRole,
+        status
       ]
     );
 
@@ -110,6 +114,7 @@ router.post('/login', async (req, res) => {
         role: user.role,
         firstName: user.first_name,
         lastName: user.last_name,
+        status: user.status,
       },
     });
   } catch (err) {
