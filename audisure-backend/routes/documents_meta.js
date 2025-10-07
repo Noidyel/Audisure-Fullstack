@@ -1,24 +1,27 @@
+// routes/documents_meta.js
 import express from "express";
-import db from "../db.js"; // your MySQL connection
+import db from "../db.js"; // MySQL promise pool
 
 const router = express.Router();
 
 // GET all document types
-router.get("/types", (req, res) => {
-  const sql = "SELECT * FROM document_types";
-  db.query(sql, (err, results) => {
-    if (err) return res.status(500).json({ success: false, message: err.message });
-    res.json(results);
-  });
+router.get("/types", async (req, res) => {
+  try {
+    const [results] = await db.query("SELECT * FROM document_types");
+    res.json({ success: true, data: results });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 });
 
 // GET all document requirements
-router.get("/requirements", (req, res) => {
-  const sql = "SELECT * FROM document_requirements";
-  db.query(sql, (err, results) => {
-    if (err) return res.status(500).json({ success: false, message: err.message });
-    res.json(results);
-  });
+router.get("/requirements", async (req, res) => {
+  try {
+    const [results] = await db.query("SELECT * FROM document_requirements");
+    res.json({ success: true, data: results });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 });
 
 export default router;
