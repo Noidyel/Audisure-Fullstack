@@ -20,42 +20,73 @@ class _LoginScreenState extends State<LoginScreen> {
   String t(String en, String tl) => isEnglish ? en : tl;
 
   Future<void> _login() async {
-  final email = emailController.text.trim();
-  final password = passwordController.text.trim();
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
 
-  if (email.isEmpty || password.isEmpty) {
-    _showMessage(t(
-        "Please enter your email and password",
-        "Paki-type ang iyong email at password"));
-    return;
+    if (email.isEmpty || password.isEmpty) {
+      _showMessage(t(
+          "Please enter your email and password",
+          "Paki-type ang iyong email at password"));
+      return;
+    }
+
+    setState(() => isLoading = true);
+
+    try {
+      final url = Uri.parse('https://audisure-backend.onrender.com/api/auth/login');
+      final response = await http
+          .post(
+            url,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({'email': email, 'password': password}),
+          )
+          .timeout(const Duration(seconds: 10)); // prevent hanging requests
+
+      setState(() => isLoading = false);
+
+      if (response.statusCode == 200) {
+        try {
+          final data = jsonDecode(response.body);
+
+          if (data['status'] == 'success') {
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setString('user_email', email);
+
+            _showMessage(t("Login successful", "Matagumpay ang pag-login"));
+
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const StatusScreen()),
+            );
+          } else {
+            _showMessage(data['message'] ??
+                t("Login failed. Please check your credentials.",
+                    "Bigo ang pag-login. Pakisuri ang iyong impormasyon."));
+          }
+        } catch (e) {
+          _showMessage(t("Invalid response from server.",
+              "Di wastong tugon mula sa server."));
+        }
+      } else if (response.statusCode == 404) {
+        _showMessage(t(
+            "Server not found. Please try again later.",
+            "Hindi mahanap ang server. Subukan muli mamaya."));
+      } else if (response.statusCode >= 500) {
+        _showMessage(t(
+            "Server error. Please try again later.",
+            "May problema sa server. Subukan muli mamaya."));
+      } else {
+        _showMessage(t(
+            "Login failed. Please check your details.",
+            "Bigo ang pag-login. Pakisuri ang iyong impormasyon."));
+      }
+    } on http.ClientException {
+      setState(() => isLoading = false);
+      _showMessage(t(
+          "Connection failed. Please check your internet connection.",
+          "Nabigo ang koneksyon. Pakisuri ang iyong internet."));
+    } 
   }
-
-  setState(() => isLoading = true);
-
-  final url = Uri.parse('https://audisure-fullstack.onrender.com/api/auth/login');
-  final response = await http.post(
-    url,
-    headers: {'Content-Type': 'application/json'},
-    body: jsonEncode({'email': email, 'password': password}),
-  );
-
-  setState(() => isLoading = false);
-
-  final data = jsonDecode(response.body);
-  if (data['status'] == 'success') {
-    // Save email to SharedPreferences
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('user_email', email);
-
-    _showMessage(t("Login successful", "Matagumpay ang pag-login"));
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const StatusScreen()),
-    );
-  } else {
-    _showMessage(data['message'] ?? t("Login failed", "Bigo ang pag-login"));
-  }
-}
 
   void _showMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -125,8 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Column(
                           children: [
                             const Icon(Icons.account_circle_outlined,
-                                size: 48,
-                                color: Color(0xFFD32F2F)),
+                                size: 48, color: Color(0xFFD32F2F)),
                             const SizedBox(height: 16),
                             Text(
                               t("Welcome Back", "Maligayang Pagbabalik"),
@@ -140,7 +170,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             const SizedBox(height: 8),
                             Text(
                               t("Log in to check your document status",
-                                "Mag-login para makita ang status ng dokumento"),
+                                  "Mag-login para makita ang status ng dokumento"),
                               style: const TextStyle(
                                 fontFamily: 'Inter',
                                 fontSize: 14,
@@ -166,9 +196,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
+                            const Text(
                               "Email",
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontFamily: 'Inter',
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
@@ -223,8 +253,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                                 contentPadding: const EdgeInsets.symmetric(
                                     horizontal: 16, vertical: 14),
-                                hintText: t("Enter password", "Ilagay ang password"),
-                                hintStyle: const TextStyle(color: mediumGrey),
+                                hintText:
+                                    t("Enter password", "Ilagay ang password"),
+                                hintStyle:
+                                    const TextStyle(color: mediumGrey),
                               ),
                             ),
                             const SizedBox(height: 24),
@@ -234,7 +266,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 onPressed: isLoading ? null : _login,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: primaryRed,
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 16),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),
                                   ),
@@ -265,7 +298,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 16),
                     TextButton(
-                      onPressed: () => Navigator.pushNamed(context, '/register'),
+                      onPressed: () =>
+                          Navigator.pushNamed(context, '/register'),
                       child: Text(
                         t("Don't have an account? Register here",
                             "Wala ka pang account? Magparehistro dito"),
