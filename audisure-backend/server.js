@@ -6,52 +6,20 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/auth.js";
 import adminRoutes from "./routes/admin.js";
 import uploadRoutes from "./routes/upload.js";
-import documentsRoutes from "./routes/documents.js";
+import documentsRoutes from "./routes/documents.js"; // new
 import tasksRoutes from "./routes/tasks.js";
-import statusRoutes from "./routes/status.js";
+import statusRoutes from "./routes/status.js"; // documents status
 
-import db from "./db.js"; // MySQL connection pool
+import db from "./db.js"; // MySQL pool
 
 dotenv.config();
 const app = express();
 
-// =========================
-// ✅ CORS Configuration
-// =========================
-const allowedOrigins = [
-  "https://audisure-frontend.onrender.com", // your deployed frontend URL
-  "http://localhost:3000",                  // for local development
-];
-
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl)
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      } else {
-        return callback(new Error("Not allowed by CORS"));
-      }
-    },
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-    optionsSuccessStatus: 200,
-  })
-);
-
-// Handle preflight requests globally
-app.options("*", cors());
-
-// =========================
 // Middleware
-// =========================
+app.use(cors());
 app.use(express.json());
 
-// =========================
 // Routes
-// =========================
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/upload", uploadRoutes);
@@ -59,9 +27,7 @@ app.use("/api/documents", documentsRoutes);
 app.use("/api/tasks", tasksRoutes);
 app.use("/api/status", statusRoutes);
 
-// =========================
-// Root Landing Page
-// =========================
+// Root landing page
 app.get("/", (req, res) => {
   res.send(`
     <div style="font-family: Arial, sans-serif; padding: 2rem; text-align: center;">
@@ -82,16 +48,12 @@ app.get("/", (req, res) => {
   `);
 });
 
-// =========================
-// 404 Handler
-// =========================
+// Catch-all for unknown routes
 app.use((req, res) => {
   res.status(404).json({ success: false, message: "Route not found" });
 });
 
-// =========================
-// Start Server
-// =========================
+// Start server
 const startServer = async () => {
   try {
     // Test MySQL connection
