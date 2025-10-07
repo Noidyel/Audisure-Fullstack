@@ -1,3 +1,4 @@
+// simple_upload_screen.dart
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -119,7 +120,7 @@ class _SimpleUploadScreenState extends State<SimpleUploadScreen> {
       }
 
       final cloudData = jsonDecode(cloudRespStr);
-      final imageUrl = cloudData['secure_url'];
+      final fileUrl = cloudData['secure_url'];
 
       // Send URL to backend
       final prefs = await SharedPreferences.getInstance();
@@ -130,9 +131,9 @@ class _SimpleUploadScreenState extends State<SimpleUploadScreen> {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'user_email': email,
-          'document_type_id': 1, // placeholder
-          'requirement_id': 0,   // placeholder
-          'file_url': imageUrl,
+          'title': 'Test Document', // mandatory field in DB
+          'file_url': fileUrl,
+          'file_type': 'pdf',       // optional
         }),
       );
 
