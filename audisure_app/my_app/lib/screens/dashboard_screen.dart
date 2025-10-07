@@ -71,18 +71,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
                   children: [
-                    _buildModuleCard(
-                      icon: Icons.upload_file,
-                      label: t("Document Upload", "Mag-upload ng Dokumento"),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  const DocumentUploadScreen()),
-                        );
-                      },
-                    ),
+                    // In the DashboardScreen GridView
+_buildModuleCard(
+  icon: Icons.upload_file,
+  label: t("Document Upload", "Mag-upload ng Dokumento"),
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => const SimpleUploadScreen()),
+    );
+  },
+),
                     _buildModuleCard(
                       icon: Icons.insert_drive_file_outlined,
                       label: t("Document Status", "Status ng Dokumento"),
