@@ -3,6 +3,8 @@ import db from '../db.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+console.log("ENV VARS:", process.env);
+
 dotenv.config();
 
 const router = express.Router();
