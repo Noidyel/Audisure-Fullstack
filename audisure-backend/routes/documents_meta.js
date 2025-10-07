@@ -1,6 +1,5 @@
-// routes/documents_meta.js
 import express from "express";
-import db from "../db.js"; // MySQL promise pool
+import db from "../db.js"; // MySQL pool
 
 const router = express.Router();
 
@@ -8,17 +7,21 @@ const router = express.Router();
 router.get("/types", async (req, res) => {
   try {
     const [results] = await db.query("SELECT * FROM document_types");
-    res.json({ success: true, data: results });
+    res.json(results);
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 });
 
-// GET all document requirements
-router.get("/requirements", async (req, res) => {
+// GET requirements by document type ID
+router.get("/requirements/:typeId", async (req, res) => {
+  const { typeId } = req.params;
   try {
-    const [results] = await db.query("SELECT * FROM document_requirements");
-    res.json({ success: true, data: results });
+    const [results] = await db.query(
+      "SELECT id, requirement_name, optional, allow_multiple FROM document_requirements WHERE document_type_id = ?",
+      [typeId]
+    );
+    res.json(results);
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
