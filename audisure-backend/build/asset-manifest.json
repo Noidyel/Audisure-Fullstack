@@ -1,0 +1,17 @@
+{
+  "files": {
+    "main.css": "/static/css/main.65aacb27.css",
+    "main.js": "/static/js/main.85502950.js",
+    "static/js/453.aaa9bdec.chunk.js": "/static/js/453.aaa9bdec.chunk.js",
+    "static/media/HCDRD_logo.png": "/static/media/HCDRD_logo.0ad3e09c7b7ee10f80f7.png",
+    "static/media/QR_Code.png": "/static/media/QR_Code.579d88e38f37f0b11529.png",
+    "index.html": "/index.html",
+    "main.65aacb27.css.map": "/static/css/main.65aacb27.css.map",
+    "main.85502950.js.map": "/static/js/main.85502950.js.map",
+    "453.aaa9bdec.chunk.js.map": "/static/js/453.aaa9bdec.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.65aacb27.css",
+    "static/js/main.85502950.js"
+  ]
+}
