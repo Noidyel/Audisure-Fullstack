@@ -5,50 +5,41 @@ import db from "../db.js";
 const router = express.Router();
 
 router.post("/", async (req, res) => {
-  let { user_email, document_type_id, requirement_id, file_url } = req.body;
-
-  // quick defaults for dev/testing
-  if (!user_email) user_email = null; // we'll check database presence below
-  document_type_id = document_type_id ?? 0; // allow 0 as placeholder
-  requirement_id = requirement_id ?? 0;
+  let { user_email, title, file_url, file_type } = req.body;
 
   if (!file_url) {
     return res.status(400).json({ success: false, message: "Missing file_url." });
   }
 
   try {
-    // If user_email not provided, try to insert with NULL user_id (or you may reject)
-    // Lookup user id (if email provided)
+    // Get user ID if email is provided
     let userId = null;
     if (user_email) {
       const [rows] = await db.execute("SELECT id FROM users WHERE email = ? LIMIT 1", [user_email]);
-      if (rows && rows.length > 0) {
+      if (rows.length > 0) {
         userId = rows[0].id;
-      } else {
-        // user not found: for dev/testing we let userId be NULL; alternatively, return error
-        console.warn("upload: user email not found:", user_email);
       }
     }
 
     // Generate short UID
     const documentUid = Math.random().toString(36).substring(2, 8).toUpperCase();
 
+    // Insert only the columns that exist
     const sql = `
       INSERT INTO documents
-        (document_uid, user_id, document_type_id, requirement_id, file_path, status, created_at)
-      VALUES (?, ?, ?, ?, ?, 'pending', NOW())
+        (document_uid, user_id, title, file_path, file_type, created_at)
+      VALUES (?, ?, ?, ?, ?, NOW())
     `;
 
-    // Note: if userId is null, pass null so DB gets NULL user_id
     await db.execute(sql, [
       documentUid,
       userId,
-      document_type_id,
-      requirement_id,
-      file_url
+      title || "Untitled Document",
+      file_url,
+      file_type || "pdf"
     ]);
 
-    return res.json({
+    res.json({
       success: true,
       message: "Document saved (dev-mode)",
       document_uid: documentUid,
