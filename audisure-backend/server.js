@@ -6,9 +6,10 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/auth.js";
 import adminRoutes from "./routes/admin.js";
 import uploadRoutes from "./routes/upload.js";
-import documentsRoutes from "./routes/documents.js"; // new
+import documentsRoutes from "./routes/documents.js"; // existing documents route
 import tasksRoutes from "./routes/tasks.js";
 import statusRoutes from "./routes/status.js"; // documents status
+import documentsMetaRoutes from "./routes/documents_meta.js"; // <-- new route
 
 import db from "./db.js"; // MySQL pool
 
@@ -26,6 +27,7 @@ app.use("/api/upload", uploadRoutes);
 app.use("/api/documents", documentsRoutes);
 app.use("/api/tasks", tasksRoutes);
 app.use("/api/status", statusRoutes);
+app.use("/api/documents_meta", documentsMetaRoutes); // <-- mounted new route
 
 // Root landing page
 app.get("/", (req, res) => {
@@ -43,6 +45,8 @@ app.get("/", (req, res) => {
         <li><a href="/api/documents">/api/documents</a></li>
         <li><a href="/api/tasks">/api/tasks</a></li>
         <li><a href="/api/status">/api/status</a></li>
+        <li><a href="/api/documents_meta/types">/api/documents_meta/types</a></li>
+        <li><a href="/api/documents_meta/requirements">/api/documents_meta/requirements</a></li>
       </ul>
     </div>
   `);

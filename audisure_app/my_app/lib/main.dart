@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import '/screens/login_screen.dart';
 import '/screens/register_screen.dart';
 import '/screens/status_screen.dart';
-import '/screens/notification_screen.dart'; // ✅ Add this import
+import '/screens/notification_screen.dart';
+import '/screens/dashboard_screen.dart'; // ✅ Import the new dashboard
 
 void main() {
   runApp(const MyApp());
@@ -16,12 +17,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Audisure App',
       debugShowCheckedModeBanner: false,
-      initialRoute: '/register', // or '/login' if you prefer starting with login
+      initialRoute: '/login', // start with login
       routes: {
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/status': (context) => const StatusScreen(),
-        '/notifications': (context) => const NotificationsScreen(), // ✅ Added route
+        '/notifications': (context) => const NotificationsScreen(),
+        '/dashboard': (context) => const DashboardScreen(), // ✅ Add dashboard route
       },
     );
   }

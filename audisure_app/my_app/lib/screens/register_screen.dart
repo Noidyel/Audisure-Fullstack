@@ -28,21 +28,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final password = passwordController.text.trim();
     final confirmPassword = confirmPasswordController.text.trim();
 
+    // Validation
     if ([firstName, lastName, email, password, confirmPassword].any((f) => f.isEmpty)) {
       _showMessage(t("Please fill in all fields", "Pakiusap punan ang lahat ng patlang"));
       return;
     }
-
     if (!email.contains('@') || !email.contains('.')) {
       _showMessage(t("Enter a valid email address", "Maglagay ng wastong email address"));
       return;
     }
-
     if (password.length < 6) {
       _showMessage(t("Password must be at least 6 characters", "Ang password ay dapat hindi bababa sa 6 na karakter"));
       return;
     }
-
     if (password != confirmPassword) {
       _showMessage(t("Passwords do not match", "Hindi tugma ang mga password"));
       return;
@@ -51,7 +49,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     setState(() => isLoading = true);
 
     try {
-      final url = Uri.parse('https://audisure-fullstack.onrender.com/api/auth/register');
+      final url = Uri.parse('https://audisure-backend.onrender.com/api/auth/register');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -60,6 +58,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           'last_name': lastName,
           'email': email,
           'password': password,
+          'role': 'applicant', // explicitly set applicant
         }),
       );
 
@@ -68,7 +67,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
-        if (data['status'] == 'success') {
+        if (data['success'] == true) { // <-- check success
           _showMessage(t(
             "Registration successful! Redirecting to login...",
             "Matagumpay ang pagpaparehistro! Inaayos ang paglipat...",
@@ -81,15 +80,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
           _showMessage(data['message'] ?? t("Registration failed", "Nabigo ang pagpaparehistro"));
         }
       } else {
-        _showMessage(
-          t("Server error. Please try again later.", "May problema sa server. Pakisubukan muli mamaya."),
-        );
+        _showMessage(t(
+          "Server error. Please try again later.",
+          "May problema sa server. Pakisubukan muli mamaya.",
+        ));
       }
     } catch (e) {
       setState(() => isLoading = false);
-      _showMessage(
-        t("Network error. Please check your connection.", "Walang koneksyon. Pakisuri ang iyong internet."),
-      );
+      _showMessage(t(
+        "Network error. Please check your connection.",
+        "Walang koneksyon. Pakisuri ang iyong internet.",
+      ));
     }
   }
 
@@ -174,7 +175,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              t("Register to track your document status", "Magparehistro para masubaybayan ang dokumento"),
+                              t(
+                                "Register to track your document status",
+                                "Magparehistro para masubaybayan ang dokumento",
+                              ),
                               style: const TextStyle(
                                 fontFamily: 'Inter',
                                 fontSize: 14,
@@ -188,7 +192,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Form
+                    // Registration Form
                     Card(
                       color: white,
                       elevation: 2,
@@ -199,38 +203,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         padding: const EdgeInsets.all(20),
                         child: Column(
                           children: [
-                            _buildTextField(
-                              firstNameController,
-                              t("First Name", "Pangalan"),
-                              icon: Icons.person_outline,
-                            ),
+                            _buildTextField(firstNameController, t("First Name", "Pangalan"), icon: Icons.person_outline),
                             const SizedBox(height: 16),
-                            _buildTextField(
-                              lastNameController,
-                              t("Last Name", "Apelyido"),
-                              icon: Icons.person_outline,
-                            ),
+                            _buildTextField(lastNameController, t("Last Name", "Apelyido"), icon: Icons.person_outline),
                             const SizedBox(height: 16),
-                            _buildTextField(
-                              emailController,
-                              "Email",
-                              keyboardType: TextInputType.emailAddress,
-                              icon: Icons.email_outlined,
-                            ),
+                            _buildTextField(emailController, "Email", keyboardType: TextInputType.emailAddress, icon: Icons.email_outlined),
                             const SizedBox(height: 16),
-                            _buildTextField(
-                              passwordController,
-                              t("Password", "Password"),
-                              obscure: true,
-                              icon: Icons.lock_outline,
-                            ),
+                            _buildTextField(passwordController, t("Password", "Password"), obscure: true, icon: Icons.lock_outline),
                             const SizedBox(height: 16),
-                            _buildTextField(
-                              confirmPasswordController,
-                              t("Confirm Password", "Kumpirmahin ang Password"),
-                              obscure: true,
-                              icon: Icons.lock_outline,
-                            ),
+                            _buildTextField(confirmPasswordController, t("Confirm Password", "Kumpirmahin ang Password"), obscure: true, icon: Icons.lock_outline),
                             const SizedBox(height: 24),
                             SizedBox(
                               width: double.infinity,
@@ -247,10 +228,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     ? const SizedBox(
                                         width: 20,
                                         height: 20,
-                                        child: CircularProgressIndicator(
-                                          color: white,
-                                          strokeWidth: 2,
-                                        ),
+                                        child: CircularProgressIndicator(color: white, strokeWidth: 2),
                                       )
                                     : Text(
                                         t("Register", "Magparehistro"),
@@ -272,11 +250,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
                       child: Text(
                         t("Already have an account? Login here", "May account ka na? Mag-login dito"),
-                        style: const TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 14,
-                          color: primaryRed,
-                        ),
+                        style: const TextStyle(fontFamily: 'Inter', fontSize: 14, color: primaryRed),
                       ),
                     ),
                   ],
@@ -289,22 +263,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
               padding: const EdgeInsets.symmetric(vertical: 16),
               decoration: BoxDecoration(
                 color: white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, -5),
-                  ),
-                ],
+                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, -5))],
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   _languageButton('English', true),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Container(height: 20, width: 1, color: lightGrey),
-                  ),
+                  Padding(padding: const EdgeInsets.symmetric(horizontal: 12), child: Container(height: 20, width: 1, color: const Color(0xFFEEEEEE))),
                   _languageButton('Tagalog', false),
                 ],
               ),
@@ -324,44 +289,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
       },
       child: Text(
         label,
-        style: TextStyle(
-          fontFamily: 'Inter',
-          color: isEnglish == english ? primaryRed : mediumGrey,
-          fontWeight: FontWeight.w600,
-        ),
+        style: TextStyle(fontFamily: 'Inter', color: isEnglish == english ? primaryRed : mediumGrey, fontWeight: FontWeight.w600),
       ),
     );
   }
 
-  Widget _buildTextField(
-    TextEditingController controller,
-    String label, {
-    TextInputType keyboardType = TextInputType.text,
-    bool obscure = false,
-    IconData? icon,
-  }) {
+  Widget _buildTextField(TextEditingController controller, String label,
+      {TextInputType keyboardType = TextInputType.text, bool obscure = false, IconData? icon}) {
     return TextField(
       controller: controller,
       obscureText: obscure,
       keyboardType: keyboardType,
-      style: const TextStyle(
-        fontSize: 16,
-        fontFamily: 'Inter',
-        color: Color(0xFF424242),
-      ),
+      style: const TextStyle(fontSize: 16, fontFamily: 'Inter', color: Color(0xFF424242)),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(
-          fontFamily: 'Inter',
-          color: Color(0xFF757575),
-        ),
+        labelStyle: const TextStyle(fontFamily: 'Inter', color: Color(0xFF757575)),
         prefixIcon: icon != null ? Icon(icon, color: Color(0xFF757575)) : null,
         filled: true,
-        fillColor: Color(0xFFEEEEEE),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: BorderSide.none,
-        ),
+        fillColor: const Color(0xFFEEEEEE),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0), borderSide: BorderSide.none),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
       ),
     );
