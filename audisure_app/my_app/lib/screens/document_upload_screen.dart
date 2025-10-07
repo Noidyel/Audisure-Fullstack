@@ -5,8 +5,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'document_upload_screen.dart';
-
 
 class SimpleUploadScreen extends StatefulWidget {
   const SimpleUploadScreen({Key? key}) : super(key: key);
@@ -20,7 +18,7 @@ class _SimpleUploadScreenState extends State<SimpleUploadScreen> {
   XFile? selectedImage;
   bool isLoading = false;
 
-  // Replace with your Cloudinary info
+  // Cloudinary
   final String cloudinaryUploadUrl =
       "https://api.cloudinary.com/v1_1/dx78jwu6q/image/upload";
   final String cloudinaryUploadPreset = "audisure_unsigned";
@@ -40,8 +38,8 @@ class _SimpleUploadScreenState extends State<SimpleUploadScreen> {
           children: [
             ElevatedButton.icon(
               onPressed: _pickImage,
-              icon: const Icon(Icons.camera_alt),
-              label: const Text("Pick Image"),
+              icon: const Icon(Icons.add_a_photo),
+              label: const Text("Pick Image (Camera/Gallery)"),
               style: ElevatedButton.styleFrom(backgroundColor: primaryRed),
             ),
             const SizedBox(height: 16),
@@ -49,10 +47,10 @@ class _SimpleUploadScreenState extends State<SimpleUploadScreen> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: selectedImage == null || isLoading ? null : _uploadDocument,
+              style: ElevatedButton.styleFrom(backgroundColor: primaryRed),
               child: isLoading
                   ? const CircularProgressIndicator(color: Colors.white)
                   : const Text("Upload Document"),
-              style: ElevatedButton.styleFrom(backgroundColor: primaryRed),
             ),
           ],
         ),
@@ -61,10 +59,36 @@ class _SimpleUploadScreenState extends State<SimpleUploadScreen> {
   }
 
   Future<void> _pickImage() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.camera);
-    if (image != null) {
-      setState(() => selectedImage = image);
-    }
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text("Camera"),
+              onTap: () async {
+                Navigator.pop(context);
+                final XFile? picked = await _picker.pickImage(
+                    source: ImageSource.camera, imageQuality: 70);
+                if (picked != null) setState(() => selectedImage = picked);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text("Gallery"),
+              onTap: () async {
+                Navigator.pop(context);
+                final XFile? picked = await _picker.pickImage(
+                    source: ImageSource.gallery, imageQuality: 70);
+                if (picked != null) setState(() => selectedImage = picked);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _uploadDocument() async {
@@ -102,7 +126,7 @@ class _SimpleUploadScreenState extends State<SimpleUploadScreen> {
       final email = prefs.getString('user_email') ?? 'test@example.com';
 
       final backendResp = await http.post(
-        Uri.parse('https://audisure-fullstack.onrender.com/api/upload'),
+        Uri.parse('https://audisure-backend.onrender.com/api/upload'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'user_email': email,

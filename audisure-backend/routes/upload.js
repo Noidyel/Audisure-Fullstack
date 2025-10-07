@@ -1,54 +1,58 @@
 // routes/upload.js
 import express from "express";
 import db from "../db.js";
-import crypto from "crypto";
 
 const router = express.Router();
 
-// POST /api/upload - Receive Cloudinary URL and save to DB
 router.post("/", async (req, res) => {
-  const { user_email, document_type_id, requirement_id, file_url } = req.body;
+  let { user_email, document_type_id, requirement_id, file_url } = req.body;
 
-  if (!user_email || !document_type_id || !requirement_id || !file_url) {
-    return res.status(400).json({ success: false, message: "Missing required fields." });
+  // quick defaults for dev/testing
+  if (!user_email) user_email = null; // we'll check database presence below
+  document_type_id = document_type_id ?? 0; // allow 0 as placeholder
+  requirement_id = requirement_id ?? 0;
+
+  if (!file_url) {
+    return res.status(400).json({ success: false, message: "Missing file_url." });
   }
 
   try {
-    // Check if user exists
-    const [users] = await db.execute("SELECT id FROM users WHERE email = ?", [user_email]);
-    if (users.length === 0) {
-      return res.status(404).json({ success: false, message: "User not found." });
+    // If user_email not provided, try to insert with NULL user_id (or you may reject)
+    // Lookup user id (if email provided)
+    let userId = null;
+    if (user_email) {
+      const [rows] = await db.execute("SELECT id FROM users WHERE email = ? LIMIT 1", [user_email]);
+      if (rows && rows.length > 0) {
+        userId = rows[0].id;
+      } else {
+        // user not found: for dev/testing we let userId be NULL; alternatively, return error
+        console.warn("upload: user email not found:", user_email);
+      }
     }
-    const userId = users[0].id;
 
     // Generate short UID
     const documentUid = Math.random().toString(36).substring(2, 8).toUpperCase();
 
-    // Generate SHA-256 hash of URL
-    const documentHash = crypto.createHash("sha256").update(file_url).digest("hex");
-
-    // Insert into documents table
     const sql = `
       INSERT INTO documents
-        (document_uid, user_id, document_type_id, requirement_id, file_path, document_hash, status, created_at)
-      VALUES
-        (?, ?, ?, ?, ?, ?, 'pending', NOW())
+        (document_uid, user_id, document_type_id, requirement_id, file_path, status, created_at)
+      VALUES (?, ?, ?, ?, ?, 'pending', NOW())
     `;
+
+    // Note: if userId is null, pass null so DB gets NULL user_id
     await db.execute(sql, [
       documentUid,
       userId,
       document_type_id,
       requirement_id,
-      file_url,
-      documentHash
+      file_url
     ]);
 
-    res.json({
+    return res.json({
       success: true,
-      message: "Document saved successfully",
+      message: "Document saved (dev-mode)",
       document_uid: documentUid,
-      file_url,
-      document_hash: documentHash
+      file_url
     });
   } catch (err) {
     console.error("Upload route error:", err);
