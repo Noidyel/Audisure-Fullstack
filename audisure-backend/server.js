@@ -45,7 +45,9 @@ app.use((req, res, next) => {
   next();
 });
 
+// ================================
 // API Routes
+// ================================
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/upload", uploadRoutes);
@@ -53,16 +55,20 @@ app.use("/api/documents", documentsRoutes);
 app.use("/api/tasks", tasksRoutes);
 app.use("/api/status", statusRoutes);
 
+// ================================
 // Serve React frontend build
+// ================================
 const buildPath = path.join(__dirname, "../audisure-frontend/build");
 app.use(express.static(buildPath));
 
 // Fallback: send index.html for any non-API route
-app.get("*", (req, res) => {
+app.get("/*", (req, res) => {
   res.sendFile(path.join(buildPath, "index.html"));
 });
 
+// ================================
 // Start server
+// ================================
 const startServer = async () => {
   try {
     const connection = await db.getConnection();
