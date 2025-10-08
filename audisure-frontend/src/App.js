@@ -4,6 +4,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import UserDashboard from "./pages/UserDashboard";
 import UploadDocuments from "./pages/UploadDocuments";
+import UploadAndReviewDocuments from "./pages/UploadAndReviewDocuments"; // <-- new
 import ViewStatus from "./pages/ViewDocumentsStatus";
 import UserNotifications from "./pages/UserNotifications";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -86,6 +87,14 @@ export default function App() {
         element={
           <ProtectedRoute allowedRoles={["admin"]}>
             <Documents />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin-dashboard/upload-review"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <UploadAndReviewDocuments />
           </ProtectedRoute>
         }
       />
