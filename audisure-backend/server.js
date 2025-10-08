@@ -2,7 +2,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-
+import documentSearchRoutes from "./routes/document_search.js";
 import authRoutes from "./routes/auth.js";
 import adminRoutes from "./routes/admin.js";
 import uploadRoutes from "./routes/upload.js";
@@ -27,7 +27,8 @@ app.use("/api/upload", uploadRoutes);
 app.use("/api/documents", documentsRoutes);
 app.use("/api/tasks", tasksRoutes);
 app.use("/api/status", statusRoutes);
-app.use("/api/documents_meta", documentsMetaRoutes); // <-- mounted new route
+app.use("/api/documents_meta", documentsMetaRoutes);
+app.use("/api/document_search", documentSearchRoutes);
 
 // Root landing page
 app.get("/", (req, res) => {
