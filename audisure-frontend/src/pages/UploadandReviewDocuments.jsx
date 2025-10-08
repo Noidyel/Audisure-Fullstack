@@ -3,7 +3,7 @@ import axios from "axios";
 import "../styles/upload_documents.css";
 import "../styles/userdashboard-features.css";
 
-const BASE_URL = "https://audisure-backend.onrender.com/api"; // Use your deployed backend
+const BASE_URL = "https://audisure-backend.onrender.com/api";
 
 export default function UploadAndReviewDocuments() {
   const [file, setFile] = useState(null);
@@ -12,6 +12,7 @@ export default function UploadAndReviewDocuments() {
   const [uploadedDoc, setUploadedDoc] = useState(null);
   const [reviewDocs, setReviewDocs] = useState([]);
   const [loadingReview, setLoadingReview] = useState(false);
+  const [selectedType, setSelectedType] = useState("All");
 
   const userEmail = localStorage.getItem("userEmail");
 
@@ -64,7 +65,7 @@ export default function UploadAndReviewDocuments() {
   const fetchReviewDocs = async () => {
     try {
       setLoadingReview(true);
-      const res = await axios.get(`${BASE_URL}/documents`); // Fetch all applicant uploads
+      const res = await axios.get(`${BASE_URL}/documents`);
       if (res.data.success) {
         setReviewDocs(res.data.documents);
       } else {
@@ -80,6 +81,47 @@ export default function UploadAndReviewDocuments() {
   useEffect(() => {
     fetchReviewDocs();
   }, []);
+
+  // Group documents by type
+  const groupedDocs = {
+    ECC: reviewDocs.filter(doc => doc.title.toUpperCase().startsWith("ECC")),
+    WCC: reviewDocs.filter(doc => doc.title.toUpperCase().startsWith("WCC")),
+    SHC: reviewDocs.filter(doc => doc.title.toUpperCase().startsWith("SHC")),
+  };
+
+  // Filtered based on dropdown selection
+  const displayedGroups = selectedType === "All" ? groupedDocs : { [selectedType]: groupedDocs[selectedType] };
+
+  const renderDocTable = (docs, label) => {
+    if (!docs || docs.length === 0) return <p>No documents for {label}.</p>;
+
+    return (
+      <table className="review-table">
+        <thead>
+          <tr>
+            <th>Applicant Email</th>
+            <th>Document UID</th>
+            <th>Title</th>
+            <th>URL</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {docs.map(doc => (
+            <tr key={doc.document_uid}>
+              <td>{doc.user_email}</td>
+              <td>{doc.document_uid}</td>
+              <td>{doc.title}</td>
+              <td>
+                <a href={doc.url} target="_blank" rel="noopener noreferrer">View</a>
+              </td>
+              <td>{doc.status}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  };
 
   return (
     <div className="upload-container">
@@ -108,7 +150,6 @@ export default function UploadAndReviewDocuments() {
             onChange={handleFileChange}
             className="file-input"
           />
-
           <button type="submit" className="btn btn-red" disabled={uploading}>
             {uploading ? "Uploading..." : "Upload Document"}
           </button>
@@ -119,9 +160,7 @@ export default function UploadAndReviewDocuments() {
             <div className="progress-bar"></div>
           </div>
         )}
-
         {message && <p className="upload-message">{message}</p>}
-
         {uploadedDoc && (
           <div className="uploaded-info">
             <h3>📁 Uploaded Document Details</h3>
@@ -141,27 +180,37 @@ export default function UploadAndReviewDocuments() {
       {/* ---------------------- REVIEW DOCUMENTS ---------------------- */}
       <div className="review-section">
         <h2>Review Uploaded Documents</h2>
+
+        {/* Dropdown filter */}
+        <div className="filter-dropdown">
+          <label htmlFor="docTypeSelect">Filter by Application Type: </label>
+          <select
+            id="docTypeSelect"
+            value={selectedType}
+            onChange={(e) => setSelectedType(e.target.value)}
+          >
+            <option value="All">All</option>
+            <option value="ECC">Electrification Clearance (ECC)</option>
+            <option value="WCC">Water Certification Clearance (WCC)</option>
+            <option value="SHC">Socialized Housing/Condo (SHC)</option>
+          </select>
+        </div>
+
         {loadingReview ? (
           <p>Loading documents...</p>
         ) : reviewDocs.length === 0 ? (
           <p>No documents uploaded yet.</p>
         ) : (
-          <div className="documents-list">
-            {reviewDocs.map((doc) => (
-              <div key={doc.document_uid} className="document-card">
-                <p><strong>Applicant Email:</strong> {doc.user_email}</p>
-                <p><strong>Document UID:</strong> {doc.document_uid}</p>
-                <p><strong>Title:</strong> {doc.title}</p>
-                <p>
-                  <strong>URL:</strong>{" "}
-                  <a href={doc.url} target="_blank" rel="noopener noreferrer">
-                    View Document
-                  </a>
-                </p>
-                <p><strong>Status:</strong> {doc.status}</p>
-              </div>
-            ))}
-          </div>
+          Object.entries(displayedGroups).map(([type, docs]) => (
+            <div key={type}>
+              <h3>
+                {type === "ECC" && "Electrification Clearance (ECC)"}
+                {type === "WCC" && "Water Certification Clearance (WCC)"}
+                {type === "SHC" && "Socialized Housing/Condo (SHC)"}
+              </h3>
+              {renderDocTable(docs, type)}
+            </div>
+          ))
         )}
       </div>
     </div>
