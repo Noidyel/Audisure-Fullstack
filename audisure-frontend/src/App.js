@@ -3,8 +3,6 @@ import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import UserDashboard from "./pages/UserDashboard";
-import UploadDocuments from "./pages/UploadDocuments";
-import UploadAndReviewDocuments from "./pages/UploadAndReviewDocuments"; // <-- new
 import ViewStatus from "./pages/ViewDocumentsStatus";
 import UserNotifications from "./pages/UserNotifications";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -12,6 +10,7 @@ import Verify from "./pages/Verify";
 import Assign from "./pages/Assign";
 import Documents from "./pages/ViewDocuments";
 import ProtectedRoute from "./components/ProtectedRoute";
+import UploadAndReviewDocuments from "./pages/UploadandReviewDocuments";
 
 export default function App() {
   return (
@@ -29,14 +28,6 @@ export default function App() {
         element={
           <ProtectedRoute allowedRoles={["user", "applicant"]}>
             <UserDashboard />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/user-dashboard/upload"
-        element={
-          <ProtectedRoute allowedRoles={["user", "applicant"]}>
-            <UploadDocuments />
           </ProtectedRoute>
         }
       />
