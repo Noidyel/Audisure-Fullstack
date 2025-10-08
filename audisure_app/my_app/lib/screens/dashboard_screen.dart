@@ -79,7 +79,7 @@ _buildModuleCard(
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => const SimpleUploadScreen()),
+          builder: (context) => const DocumentUploadScreen()),
     );
   },
 ),
