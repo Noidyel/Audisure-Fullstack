@@ -1,22 +1,22 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // <-- added
+import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/UserSidebar";
 import Topbar from "../components/UserTopbar";
-import UploadDocuments from "./UploadDocuments";
+import UploadAndReviewDocuments from "./UploadandReviewDocuments"; // <-- new import
 import ViewStatus from "./ViewDocumentsStatus";
-import ViewTasks from "./ViewTasks"; // <-- changed
+import ViewTasks from "./ViewTasks";
 import "../styles/dashboard.css";
 
 export default function UserDashboard() {
-  const navigate = useNavigate(); // <-- added
+  const navigate = useNavigate();
   const userFirstName = localStorage.getItem("firstName") || "Nigel";
   const [sidebarHovered, setSidebarHovered] = useState(false);
   const [activeFeature, setActiveFeature] = useState("dashboard");
 
   const handleLogout = () => {
-  localStorage.clear();
-  window.location.href = "/"; // <-- redirect to HomePage instead of login
-};
+    localStorage.clear();
+    window.location.href = "/"; // redirect to HomePage
+  };
 
   const activities = [
     { id: 1, text: "You uploaded a document", time: "5 min ago" },
@@ -28,11 +28,11 @@ export default function UserDashboard() {
   const renderContent = () => {
     switch (activeFeature) {
       case "upload":
-        return <UploadDocuments />;
+        return <UploadAndReviewDocuments />;
       case "status":
         return <ViewStatus />;
-      case "tasks": // <-- changed from "notifications"
-        return <ViewTasks />; // <-- changed
+      case "tasks":
+        return <ViewTasks />;
       default:
         return (
           <>
@@ -40,9 +40,7 @@ export default function UserDashboard() {
               <div className="card card-primary" onClick={() => setActiveFeature("upload")}>
                 <strong>📤 Upload</strong>
                 <p>
-                  Easily upload all the necessary documents required for your application.
-                  Our system ensures secure storage, quick access, and smooth verification
-                  by authorized staff to speed up the approval process.
+                  Upload and review your documents. This feature allows you to submit files and see the uploaded documents for verification.
                 </p>
               </div>
 
@@ -50,8 +48,6 @@ export default function UserDashboard() {
                 <strong>🔍 Status</strong>
                 <p>
                   Track the progress of your submitted documents in real time.
-                  From pending to approval, you’ll always know the current stage
-                  of your application and avoid unnecessary delays or confusion.
                 </p>
               </div>
 
@@ -59,8 +55,6 @@ export default function UserDashboard() {
                 <strong>📝 View Tasks</strong>
                 <p>
                   See all your assigned tasks and their progress.
-                  Keep track of what needs to be done and stay organized
-                  so you never miss an important action.
                 </p>
               </div>
             </div>
