@@ -15,7 +15,6 @@ class _StatusScreenState extends State<StatusScreen> {
   final TextEditingController _controller = TextEditingController();
   bool _isLoading = false;
   bool isEnglish = true;
-
   List<String> _recentDocumentIds = [];
 
   String t(String en, String tl) => isEnglish ? en : tl;
@@ -28,11 +27,9 @@ class _StatusScreenState extends State<StatusScreen> {
 
   Future<void> _loadRecentDocumentIds() async {
     final prefs = await SharedPreferences.getInstance();
-    final List<String>? storedIds = prefs.getStringList('recentDocumentIds');
+    final storedIds = prefs.getStringList('recentDocumentIds');
     if (storedIds != null) {
-      setState(() {
-        _recentDocumentIds = storedIds;
-      });
+      setState(() => _recentDocumentIds = storedIds);
     }
   }
 
@@ -52,14 +49,16 @@ class _StatusScreenState extends State<StatusScreen> {
     _saveRecentDocumentIds();
   }
 
+  // ✅ Fixed to only use document_uid
   Future<void> _recordSearch(String documentId) async {
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.254.100/audisure/audisure_app/audisure_api/record_search.php'),
-        body: {
+        Uri.parse('https://audisure-backend.onrender.com/api/status'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
           'document_uid': documentId,
           'searched_at': DateTime.now().toIso8601String(),
-        },
+        }),
       );
 
       if (response.statusCode != 200) {
@@ -71,7 +70,7 @@ class _StatusScreenState extends State<StatusScreen> {
   }
 
   void _checkStatus() async {
-    String documentId = _controller.text.trim();
+    final documentId = _controller.text.trim();
 
     if (documentId.isEmpty) {
       _showMessage(t("Please enter a Document ID.", "Pakilagay ang Document ID."));
@@ -81,17 +80,17 @@ class _StatusScreenState extends State<StatusScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final response = await http.get(Uri.parse(
-        'http://192.168.254.100/audisure/audisure_app/audisure_api/status.php?document_uid=$documentId',
-      ));
+      final response = await http.get(
+  Uri.parse('https://audisure-backend.onrender.com/api/status/document?document_uid=$documentId'),
+);
 
       setState(() => _isLoading = false);
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final status = data['status']?.toString().toLowerCase();
 
-        if (status != null && ["pending", "approved", "rejected"].contains(status)) {
+        if (data['success'] == true && data['status'] != null) {
+          final status = data['status'].toString().toLowerCase();
           _addToRecent(documentId);
           _recordSearch(documentId);
 
@@ -105,7 +104,7 @@ class _StatusScreenState extends State<StatusScreen> {
             ),
           );
         } else {
-          _showMessage(t("Invalid status received.", "Hindi wastong status ang natanggap."));
+          _showMessage(t("Document not found.", "Hindi natagpuan ang dokumento."));
         }
       } else {
         _showMessage(t("Failed to load status.", "Nabigong i-load ang status."));
@@ -172,13 +171,10 @@ class _StatusScreenState extends State<StatusScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
                 child: Column(
                   children: [
-                    // Header
                     _buildHeaderCard(white, darkGrey, mediumGrey),
                     const SizedBox(height: 24),
-                    // Input Card
                     _buildInputCard(lightGrey, white, darkGrey, mediumGrey),
                     const SizedBox(height: 24),
-                    // Button
                     _buildCheckButton(primaryRed, white),
                   ],
                 ),
