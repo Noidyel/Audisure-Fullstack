@@ -21,69 +21,75 @@ class _LoginScreenState extends State<LoginScreen> {
   String t(String en, String tl) => isEnglish ? en : tl;
 
   Future<void> _login() async {
-  final email = emailController.text.trim();
-  final password = passwordController.text.trim();
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
 
-  if (email.isEmpty || password.isEmpty) {
-    _showMessage(t(
-        "Please enter your email and password",
-        "Paki-type ang iyong email at password"));
-    return;
-  }
-
-  setState(() => isLoading = true);
-
-  try {
-    final url = Uri.parse('https://audisure-backend.onrender.com/api/auth/login');
-    final response = await http
-        .post(
-          url,
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({'email': email, 'password': password}),
-        )
-        .timeout(const Duration(seconds: 10));
-
-    setState(() => isLoading = false);
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-
-      if (data['success'] == true) {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('user_email', email);
-        await prefs.setString('first_name', data['first_name'] ?? '');
-        await prefs.setString('last_name', data['last_name'] ?? '');
-
-        _showMessage(t("Login successful", "Matagumpay ang pag-login"));
-
-        // Navigate to dashboard instead of status screen
-        Navigator.pushReplacementNamed(context, '/dashboard');
-      } else {
-        _showMessage(data['message'] ??
-            t("Login failed. Please check your credentials.",
-                "Bigo ang pag-login. Pakisuri ang iyong impormasyon."));
-      }
-    } else if (response.statusCode == 404) {
-      _showMessage(t(
-          "Server not found. Please try again later.",
-          "Hindi mahanap ang server. Subukan muli mamaya."));
-    } else if (response.statusCode >= 500) {
-      _showMessage(t(
-          "Server error. Please try again later.",
-          "May problema sa server. Subukan muli mamaya."));
-    } else {
-      _showMessage(t(
-          "Login failed. Please check your details.",
-          "Bigo ang pag-login. Pakisuri ang iyong impormasyon."));
+    if (email.isEmpty || password.isEmpty) {
+      _showMessage(t("Please enter your email and password",
+          "Paki-type ang iyong email at password"));
+      return;
     }
-  } catch (e) {
-    setState(() => isLoading = false);
-    _showMessage(t(
-        "Connection failed. Please check your internet connection.",
-        "Nabigo ang koneksyon. Pakisuri ang iyong internet."));
-    print("Login error: $e"); // <-- Add this to see the real error in debug
+
+    setState(() => isLoading = true);
+
+    try {
+      final url =
+          Uri.parse('https://audisure-backend.onrender.com/api/auth/login');
+      final response = await http
+          .post(
+            url,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({'email': email, 'password': password}),
+          )
+          .timeout(const Duration(seconds: 10));
+
+      setState(() => isLoading = false);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        if (data['success'] == true && data['user'] != null) {
+          final user = data['user'];
+          final prefs = await SharedPreferences.getInstance();
+
+          // ✅ Store user details for profile & status screens
+          await prefs.setInt('user_id', user['id']);
+          await prefs.setString('user_email', user['email'] ?? '');
+          await prefs.setString('first_name', user['firstName'] ?? '');
+          await prefs.setString('last_name', user['lastName'] ?? '');
+          await prefs.setString('user_role', user['role'] ?? '');
+          await prefs.setString('user_status', user['status'] ?? '');
+
+          _showMessage(t("Login successful", "Matagumpay ang pag-login"));
+
+          // Navigate to dashboard after successful login
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const DashboardScreen()),
+          );
+        } else {
+          _showMessage(data['message'] ??
+              t("Login failed. Please check your credentials.",
+                  "Bigo ang pag-login. Pakisuri ang iyong impormasyon."));
+        }
+      } else if (response.statusCode == 404) {
+        _showMessage(t("Server not found. Please try again later.",
+            "Hindi mahanap ang server. Subukan muli mamaya."));
+      } else if (response.statusCode >= 500) {
+        _showMessage(t("Server error. Please try again later.",
+            "May problema sa server. Subukan muli mamaya."));
+      } else {
+        _showMessage(t("Login failed. Please check your details.",
+            "Bigo ang pag-login. Pakisuri ang iyong impormasyon."));
+      }
+    } catch (e) {
+      setState(() => isLoading = false);
+      _showMessage(t(
+          "Connection failed. Please check your internet connection.",
+          "Nabigo ang koneksyon. Pakisuri ang iyong internet."));
+      print("Login error: $e");
+    }
   }
-}
 
   void _showMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -236,7 +242,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                     borderSide: BorderSide.none),
                                 contentPadding: const EdgeInsets.symmetric(
                                     horizontal: 16, vertical: 14),
-                                hintText: t("Enter password", "Ilagay ang password"),
+                                hintText:
+                                    t("Enter password", "Ilagay ang password"),
                                 hintStyle: const TextStyle(color: mediumGrey),
                                 suffixIcon: IconButton(
                                   icon: Icon(
@@ -260,7 +267,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 onPressed: isLoading ? null : _login,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: primaryRed,
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 16),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),
                                   ),

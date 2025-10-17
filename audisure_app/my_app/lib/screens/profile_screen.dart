@@ -23,9 +23,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      firstName = prefs.getString('first_name') ?? '';
-      lastName = prefs.getString('last_name') ?? '';
-      email = prefs.getString('user_email') ?? '';
+      // ✅ Match the keys saved after login (case-sensitive)
+      firstName = prefs.getString('firstName') ?? '';
+      lastName = prefs.getString('lastName') ?? '';
+      email = prefs.getString('email') ?? '';
     });
   }
 
@@ -70,52 +71,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
         toolbarHeight: 80,
       ),
       body: SafeArea(
-        child: Center( // <-- Center the card horizontally
+        child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: Card(
               color: white,
-              elevation: 2,
+              elevation: 3,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center, // Center content
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const Icon(Icons.account_circle_outlined,
-                        size: 64, color: primaryRed),
+                        size: 80, color: primaryRed),
                     const SizedBox(height: 16),
                     Text(
-                      'First Name: $firstName',
+                      firstName.isNotEmpty || lastName.isNotEmpty
+                          ? '$firstName $lastName'
+                          : 'Name not available',
                       style: const TextStyle(
                         fontFamily: 'Inter',
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
                         color: darkGrey,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Last Name: $lastName',
-                      style: const TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: darkGrey,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Email: $email',
+                      email.isNotEmpty ? email : 'Email not available',
                       style: const TextStyle(
                         fontFamily: 'Inter',
                         fontSize: 16,
                         color: darkGrey,
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 32),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
